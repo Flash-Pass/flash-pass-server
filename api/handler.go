@@ -1,10 +1,13 @@
 package api
 
 import (
-	"fmt"
-	"github.com/Flash-Pass/flash-pass-server/config"
-
+	"github.com/Flash-Pass/flash-pass-server/api/card"
 	userhandler "github.com/Flash-Pass/flash-pass-server/api/user"
+	"github.com/Flash-Pass/flash-pass-server/config"
+	"github.com/Flash-Pass/flash-pass-server/db"
+	"github.com/Flash-Pass/flash-pass-server/db/query"
+	cardrepo "github.com/Flash-Pass/flash-pass-server/db/repositories/card"
+	cardservice "github.com/Flash-Pass/flash-pass-server/service/card"
 	userservice "github.com/Flash-Pass/flash-pass-server/service/user"
 	"github.com/gin-gonic/gin"
 )
@@ -44,14 +47,22 @@ func (h *Handler) GetRoutes() *gin.Engine {
 }
 
 func (h *Handler) Load(cfg *config.EnvVariable) {
+	DB, err := db.InitMySQL(cfg.MySQL.Username, cfg.MySQL.Password, cfg.MySQL.Host, cfg.MySQL.Port, cfg.MySQL.Database)
+	if err != nil {
+		panic(err)
+	}
+	query.SetDefault(DB)
+
 	// TODO: load all repositories
-	fmt.Println(cfg)
+	cardRepository := cardrepo.NewRepository(DB)
 
 	// TODO: load all services
+	cardService := cardservice.NewService(cardRepository)
 	userService := userservice.NewService()
 
 	// TODO: load all handlers
+	cardHandler := card.NewHandler(cardService, 1)
 	userHandler := userhandler.NewHandler(userService)
 
-	h.AddRoutes(userHandler)
+	h.AddRoutes(cardHandler, userHandler)
 }

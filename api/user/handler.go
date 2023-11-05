@@ -7,7 +7,7 @@ type Handler struct {
 }
 
 type IHandler interface {
-	AddRoutes(r *gin.Engine)
+	AddRoutes(r *gin.Context)
 	loginViaWeChat(c *gin.Context)
 	login(c *gin.Context)
 	update(c *gin.Context)
