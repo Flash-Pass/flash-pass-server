@@ -5,6 +5,7 @@ go 1.21
 require (
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/caarlos0/env/v9 v9.0.0
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.9.1
 	github.com/golang/mock v1.6.0
 	github.com/mattn/go-isatty v0.0.20

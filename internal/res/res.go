@@ -35,5 +35,5 @@ func RespondWithError(ctx *gin.Context, statusCode int, err *fpstatus.ErrNo, dat
 		response.Data = data
 	}
 
-	ctx.JSON(statusCode, response)
+	ctx.AbortWithStatusJSON(statusCode, response)
 }

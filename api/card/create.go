@@ -3,14 +3,15 @@ package card
 import (
 	"github.com/Flash-Pass/flash-pass-server/db/model"
 	"github.com/Flash-Pass/flash-pass-server/internal/fpstatus"
+	"github.com/Flash-Pass/flash-pass-server/internal/paramValidator"
 	"github.com/Flash-Pass/flash-pass-server/internal/res"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type CreateCardRequest struct {
-	Question string `json:"question"`
-	Answer   string `json:"answer"`
+	Question string `json:"question" binding:"required"`
+	Answer   string `json:"answer" binding:"required"`
 }
 
 func (h *Handler) CreateCardController(ctx *gin.Context) {
@@ -22,7 +23,7 @@ func (h *Handler) CreateCardController(ctx *gin.Context) {
 
 	params := &CreateCardRequest{}
 	if err := ctx.ShouldBind(&params); err != nil {
-		res.RespondWithError(ctx, http.StatusBadRequest, fpstatus.ParseParametersError, nil)
+		paramValidator.RespondWithParamError(ctx, err)
 		return
 	}
 
