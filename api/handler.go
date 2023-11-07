@@ -47,7 +47,7 @@ func (h *Handler) GetRoutes() *gin.Engine {
 }
 
 func (h *Handler) Load(cfg *config.EnvVariable) {
-	DB, err := db.InitMySQL(cfg.MySQL.Username, cfg.MySQL.Password, cfg.MySQL.Host, cfg.MySQL.Port, cfg.MySQL.Database)
+	DB, err := db.InitMySQL(cfg.MySQL)
 	if err != nil {
 		panic(err)
 	}

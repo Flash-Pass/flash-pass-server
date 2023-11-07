@@ -2,16 +2,19 @@ package main
 
 import (
 	"flag"
+
+	"gorm.io/gen"
+
+	"github.com/Flash-Pass/flash-pass-server/config"
 	"github.com/Flash-Pass/flash-pass-server/db"
 	"github.com/Flash-Pass/flash-pass-server/db/model"
-	"gorm.io/gen"
 )
 
 var (
 	username = flag.String("username", "root", "username")
 	password = flag.String("password", "root", "password")
 	host     = flag.String("host", "localhost", "host")
-	port     = flag.String("port", "3306", "port")
+	port     = flag.Int("port", 3306, "port")
 	database = flag.String("database", "flash_pass", "database")
 )
 
@@ -21,7 +24,13 @@ func main() {
 		Mode:    gen.WithoutContext | gen.WithDefaultQuery | gen.WithQueryInterface,
 	})
 
-	db, err := db.InitMySQL(*username, *password, *host, *port, *database)
+	db, err := db.InitMySQL(config.MySQLConfig{
+		Username: *username,
+		Password: *password,
+		Host:     *host,
+		Port:     *port,
+		Database: *database,
+	})
 	if err != nil {
 		panic(err)
 	}
