@@ -8,7 +8,7 @@ import (
 )
 
 type DeleteCardRequest struct {
-	id string `json:"id"`
+	Id string `json:"id"`
 }
 
 func (h *Handler) DeleteCardController(ctx *gin.Context) {
@@ -23,7 +23,7 @@ func (h *Handler) DeleteCardController(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.service.DeleteCard(ctx, params.id, userId.(string)); err != nil {
+	if err := h.service.DeleteCard(ctx, params.Id, userId.(string)); err != nil {
 		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return
 	}

@@ -56,3 +56,11 @@ func LoadEnv(ctx context.Context) (*EnvVariable, error) {
 
 	return config, nil
 }
+
+type DatabaseConfig struct {
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Database string `json:"database"`
+}

@@ -9,8 +9,8 @@ import (
 )
 
 type CreateCardRequest struct {
-	question string `json:"question"`
-	answer   string `json:"answer"`
+	Question string `json:"question"`
+	Answer   string `json:"answer"`
 }
 
 func (h *Handler) CreateCardController(ctx *gin.Context) {
@@ -27,7 +27,7 @@ func (h *Handler) CreateCardController(ctx *gin.Context) {
 	}
 
 	card := model.NewCard(
-		h.snowflakeHandle.GetId().String(), params.question, params.answer, userId.(string),
+		h.snowflakeHandle.GetId().String(), params.Question, params.Answer, userId.(string),
 	)
 	if err := h.service.CreateCard(ctx, card); err != nil {
 		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)

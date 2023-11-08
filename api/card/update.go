@@ -9,9 +9,9 @@ import (
 )
 
 type UpdateCardRequest struct {
-	id       string `json:"id"`
-	question string `json:"question"`
-	answer   string `json:"answer"`
+	Id       string `json:"id"`
+	Question string `json:"question"`
+	Answer   string `json:"answer"`
 }
 
 func (h *Handler) UpdateCardController(ctx *gin.Context) {
@@ -28,7 +28,7 @@ func (h *Handler) UpdateCardController(ctx *gin.Context) {
 	}
 
 	card, err := h.service.UpdateCard(ctx, model.NewCard(
-		params.id, params.question, params.answer, userId.(string),
+		params.Id, params.Question, params.Answer, userId.(string),
 	))
 	if err != nil {
 		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)

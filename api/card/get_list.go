@@ -8,8 +8,8 @@ import (
 )
 
 type GetCardListRequest struct {
-	search string `json:"search"`
-	userId string `json:"id"`
+	Search string `json:"search"`
+	UserId string `json:"id"`
 }
 
 func (h *Handler) GetCardListController(ctx *gin.Context) {
@@ -19,7 +19,7 @@ func (h *Handler) GetCardListController(ctx *gin.Context) {
 		return
 	}
 
-	cards, err := h.service.GetCardList(ctx, params.search, params.userId)
+	cards, err := h.service.GetCardList(ctx, params.Search, params.UserId)
 	if err != nil {
 		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return

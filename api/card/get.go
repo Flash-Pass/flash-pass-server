@@ -8,7 +8,7 @@ import (
 )
 
 type GetCardRequest struct {
-	id string `json:"id"`
+	Id string `json:"id"`
 }
 
 func (h *Handler) GetCardController(ctx *gin.Context) {
@@ -18,7 +18,7 @@ func (h *Handler) GetCardController(ctx *gin.Context) {
 		return
 	}
 
-	card, err := h.service.GetCard(ctx, params.id)
+	card, err := h.service.GetCard(ctx, params.Id)
 	if err != nil {
 		res.RespondWithError(ctx, http.StatusNotFound, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return

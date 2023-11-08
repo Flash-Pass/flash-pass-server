@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	variables *config.EnvVariable
-	handler   *api.Handler
+	//variables *config.EnvVariable
+	handler *api.Handler
 )
 
 func init() {
