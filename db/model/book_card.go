@@ -7,7 +7,7 @@ type BookCard struct {
 	CreatedBy int64 `json:"createdBy"`
 }
 
-func NewBookCard(id, bookId, cardId, createdBy int64) *BookCard {
+func NewBookCard(id uint64, bookId, cardId, createdBy int64) *BookCard {
 	return &BookCard{
 		Base: Base{
 			Id: id,

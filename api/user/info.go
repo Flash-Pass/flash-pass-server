@@ -10,8 +10,8 @@ import (
 )
 
 type getInfoRequest struct {
-	openId string `json:"open_id"`
-	mobile string `json:"mobile"`
+	openId string `json:"open_id" form:"open_id"`
+	mobile string `json:"mobile" form:"mobile"`
 }
 
 func (h *Handler) getInfo(c *gin.Context) {
@@ -26,7 +26,7 @@ func (h *Handler) getInfo(c *gin.Context) {
 		return
 	}
 
-	user, err := h.service.GetUser(c, params.openId, params.mobile, userId.(string))
+	user, err := h.service.GetUser(c, params.openId, params.mobile, userId.(uint64))
 	if err != nil {
 		res.RespondWithError(c, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return

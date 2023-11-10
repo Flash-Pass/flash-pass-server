@@ -1,20 +1,21 @@
 package card
 
 import (
+	"net/http"
+
 	"github.com/Flash-Pass/flash-pass-server/internal/fpstatus"
 	"github.com/Flash-Pass/flash-pass-server/internal/res"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type GetCardListRequest struct {
-	Search string `json:"search" form:"search"`
-	UserId string `json:"id" form:"id"`
+	Search string `json:"search"`
+	UserId uint64 `json:"id"`
 }
 
 func (h *Handler) GetCardListController(ctx *gin.Context) {
 	params := &GetCardListRequest{}
-	if err := ctx.Bind(&params); err != nil {
+	if err := ctx.Bind(params); err != nil {
 		res.RespondWithError(ctx, http.StatusBadRequest, fpstatus.ParseParametersError, nil)
 		return
 	}

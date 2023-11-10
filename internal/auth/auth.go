@@ -3,6 +3,7 @@ package auth
 import (
 	"errors"
 	"fmt"
+
 	"github.com/Flash-Pass/flash-pass-server/internal/ctxlog"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -21,7 +22,7 @@ var (
 )
 
 type UserClaim struct {
-	Id         int64  `json:"id"`
+	Id         uint64 `json:"id"`
 	OpenId     string `json:"open_id"`
 	SessionKey string `json:"session_key"`
 	UnionId    string `json:"union_id"`
@@ -62,8 +63,8 @@ func ParseToken(c *gin.Context, tokenString string) (*UserClaim, error) {
 	return claims, nil
 }
 
-func ParseInfoWithToken(c *gin.Context, tokenString string) (map[string]string, error) {
-	result := make(map[string]string)
+func ParseInfoWithToken(c *gin.Context, tokenString string) (map[string]interface{}, error) {
+	result := make(map[string]interface{})
 
 	claim, err := ParseToken(c, tokenString)
 	if err != nil {

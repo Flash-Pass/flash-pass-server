@@ -29,9 +29,11 @@ func main() {
 		panic(err)
 	}
 
-	err = db.AutoMigrate(
-		&model.User{}, &model.Card{},
+	err = db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(
+		&model.User{}, &model.Card{}, &model.Plan{},
 	)
+
+	db.Migrator()
 
 	if err != nil {
 		panic(err)

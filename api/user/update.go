@@ -1,13 +1,14 @@
 package user
 
 import (
+	"net/http"
+
 	"github.com/Flash-Pass/flash-pass-server/db/model"
 	"github.com/Flash-Pass/flash-pass-server/internal/constants"
 	"github.com/Flash-Pass/flash-pass-server/internal/fpstatus"
 	"github.com/Flash-Pass/flash-pass-server/internal/paramValidator"
 	"github.com/Flash-Pass/flash-pass-server/internal/res"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type UpdateUserRequest struct {
@@ -29,7 +30,7 @@ func (h *Handler) update(ctx *gin.Context) {
 
 	user, err := h.service.Update(ctx, &model.User{
 		Base: model.Base{
-			Id: userId.(int64),
+			Id: userId.(uint64),
 		},
 		Nickname: params.Nickname,
 	})

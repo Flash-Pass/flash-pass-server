@@ -3,7 +3,6 @@ package book
 import (
 	"github.com/Flash-Pass/flash-pass-server/db/model"
 	"github.com/Flash-Pass/flash-pass-server/db/repositories/book"
-	"github.com/Flash-Pass/flash-pass-server/db/repositories/card"
 	"github.com/Flash-Pass/flash-pass-server/entity"
 	"github.com/gin-gonic/gin"
 )
@@ -12,7 +11,7 @@ var _ IService = (*Service)(nil)
 
 type Service struct {
 	bookRepo book.IRepository
-	cardRepo card.IRepository
+	cardRepo cardRepository
 }
 
 type IService interface {
@@ -25,7 +24,11 @@ type IService interface {
 	DeleteCardFromBook(ctx *gin.Context, bookId, cardId, userId int64) error
 }
 
-func NewService(bookRepo book.IRepository, cardRepo card.IRepository) *Service {
+type cardRepository interface {
+	GetListByIds(ctx *gin.Context, ids []int64) ([]*model.Card, error)
+}
+
+func NewService(bookRepo book.IRepository, cardRepo cardRepository) *Service {
 	return &Service{
 		bookRepo, cardRepo,
 	}
