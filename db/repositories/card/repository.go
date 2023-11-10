@@ -1,6 +1,7 @@
 package card
 
 import (
+	"errors"
 	"github.com/Flash-Pass/flash-pass-server/db/model"
 	"github.com/Flash-Pass/flash-pass-server/db/query"
 	"github.com/Flash-Pass/flash-pass-server/internal/ctxlog"
@@ -75,12 +76,18 @@ func (r *Repository) Update(ctx *gin.Context, cardId, question, answer string) (
 func (r *Repository) Delete(ctx *gin.Context, cardId, userId string) error {
 	logger := ctxlog.GetLogger(ctx)
 
-	_, err := r.card.WithContext(ctx).Where(
+	updateInfo, err := r.card.WithContext(ctx).Where(
 		query.Card.Id.Eq(cardId),
-		query.Card.CreatedBy.Eq(userId)).Update(query.Card.IsDeleted, true)
+		query.Card.CreatedBy.Eq(userId),
+		query.Card.IsDeleted.Is(false)).Update(query.Card.IsDeleted, true)
 	if err != nil {
 		logger.Error("delete card defeat", zap.Error(err), zap.String("card id", cardId))
 		return err
+	}
+
+	if updateInfo.RowsAffected == 0 {
+		logger.Error("delete card defeat", zap.Error(err), zap.String("card id", cardId))
+		return errors.New("card has been deleted or card not exist")
 	}
 
 	return nil

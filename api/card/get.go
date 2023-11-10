@@ -2,19 +2,20 @@ package card
 
 import (
 	"github.com/Flash-Pass/flash-pass-server/internal/fpstatus"
+	"github.com/Flash-Pass/flash-pass-server/internal/paramValidator"
 	"github.com/Flash-Pass/flash-pass-server/internal/res"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type GetCardRequest struct {
-	Id string `json:"id"`
+	Id string `json:"id" form:"id" binding:"required"`
 }
 
 func (h *Handler) GetCardController(ctx *gin.Context) {
-	params := &GetCardRequest{}
-	if err := ctx.ShouldBind(&params); err != nil {
-		res.RespondWithError(ctx, http.StatusBadRequest, fpstatus.ParseParametersError, nil)
+	var params GetCardRequest
+	if err := ctx.Bind(&params); err != nil {
+		paramValidator.RespondWithParamError(ctx, err)
 		return
 	}
 

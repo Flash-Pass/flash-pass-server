@@ -2,12 +2,10 @@ package main
 
 import (
 	"flag"
-
-	"gorm.io/gen"
+	"github.com/Flash-Pass/flash-pass-server/db/model"
 
 	"github.com/Flash-Pass/flash-pass-server/config"
 	"github.com/Flash-Pass/flash-pass-server/db"
-	"github.com/Flash-Pass/flash-pass-server/db/model"
 )
 
 var (
@@ -19,11 +17,6 @@ var (
 )
 
 func main() {
-	g := gen.NewGenerator(gen.Config{
-		OutPath: "./db/query",
-		Mode:    gen.WithoutContext | gen.WithDefaultQuery | gen.WithQueryInterface,
-	})
-
 	db, err := db.InitMySQL(config.MySQLConfig{
 		Username: *username,
 		Password: *password,
@@ -31,14 +24,16 @@ func main() {
 		Port:     *port,
 		Database: *database,
 	})
+
 	if err != nil {
 		panic(err)
 	}
 
-	g.UseDB(db)
+	err = db.AutoMigrate(
+		&model.User{}, &model.Card{},
+	)
 
-	g.ApplyBasic(model.Card{})
-	g.ApplyInterface(func(model.CardQueries) {}, model.Card{})
-
-	g.Execute()
+	if err != nil {
+		panic(err)
+	}
 }

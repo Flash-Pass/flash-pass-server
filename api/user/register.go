@@ -8,19 +8,19 @@ import (
 	"net/http"
 )
 
-type loginRequest struct {
+type registerViaMobileRequest struct {
 	Mobile   string `json:"mobile" binding:"required,stringIsMobile"`
 	Password string `json:"password" binding:"required"`
 }
 
-func (h *Handler) login(c *gin.Context) {
-	params := &loginRequest{}
+func (h *Handler) registerViaMobile(c *gin.Context) {
+	params := &registerViaMobileRequest{}
 	if err := c.ShouldBind(params); err != nil {
 		paramValidator.RespondWithParamError(c, err)
 		return
 	}
 
-	token, err := h.service.Login(c, params.Mobile, params.Password)
+	token, err := h.service.Register(c, params.Mobile, params.Password)
 	if err != nil {
 		res.RespondWithError(c, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return

@@ -176,13 +176,15 @@ type ICardDo interface {
 	GetBySearchAndUserId(search string, userId string) (result []*model.Card, err error)
 }
 
-// SELECT * FROM @@table WHERE question LIKE '%@search%' OR answer LIKE '%@search%' OR created_by = @userId
+// SELECT * FROM @@table WHERE question LIKE concat("%", @search,"%") OR answer LIKE concat("%", @search,"%") OR created_by = @userId
 func (c cardDo) GetBySearchAndUserId(search string, userId string) (result []*model.Card, err error) {
 	var params []interface{}
 
 	var generateSQL strings.Builder
+	params = append(params, search)
+	params = append(params, search)
 	params = append(params, userId)
-	generateSQL.WriteString("SELECT * FROM cards WHERE question LIKE '%@search%' OR answer LIKE '%@search%' OR created_by = ? ")
+	generateSQL.WriteString("SELECT * FROM cards WHERE question LIKE concat(\"%\", ?,\"%\") OR answer LIKE concat(\"%\", ?,\"%\") OR created_by = ? ")
 
 	var executeSQL *gorm.DB
 	executeSQL = c.UnderlyingDB().Raw(generateSQL.String(), params...).Find(&result) // ignore_security_alert

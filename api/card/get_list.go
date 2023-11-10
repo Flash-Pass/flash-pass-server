@@ -14,7 +14,7 @@ type GetCardListRequest struct {
 
 func (h *Handler) GetCardListController(ctx *gin.Context) {
 	params := &GetCardListRequest{}
-	if err := ctx.ShouldBind(&params); err != nil {
+	if err := ctx.Bind(&params); err != nil {
 		res.RespondWithError(ctx, http.StatusBadRequest, fpstatus.ParseParametersError, nil)
 		return
 	}

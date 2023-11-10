@@ -10,7 +10,7 @@ type Card struct {
 }
 
 type CardQueries interface {
-	// SELECT * FROM @@table WHERE question LIKE '%@search%' OR answer LIKE '%@search%' OR created_by = @userId
+	// SELECT * FROM @@table WHERE question LIKE concat("%", @search,"%") OR answer LIKE concat("%", @search,"%") OR created_by = @userId
 	GetBySearchAndUserId(search, userId string) ([]*gen.T, error)
 }
 

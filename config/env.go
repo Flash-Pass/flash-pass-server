@@ -13,9 +13,10 @@ import (
 )
 
 type EnvVariable struct {
-	BASE  BaseConfig  `envPrefix:"BASE_"`
-	MySQL MySQLConfig `envPrefix:"MYSQL_"`
-	Log   LogConfig   `envPrefix:"LOG_"`
+	BASE   BaseConfig   `envPrefix:"BASE_"`
+	MySQL  MySQLConfig  `envPrefix:"MYSQL_"`
+	WeChat WeChatConfig `envPrefix:"WECHAT_"`
+	Log    LogConfig    `envPrefix:"LOG_"`
 }
 
 type BaseConfig struct {
@@ -35,6 +36,11 @@ type MySQLConfig struct {
 	CharSet   string `env:"CHARSET" envDefault:"utf8" json:"charset"`
 	ParseTime string `env:"PARSE_TIME" envDefault:"true" json:"parse_time"`
 	Loc       string `env:"LOC" envDefault:"Local" json:"loc"`
+}
+
+type WeChatConfig struct {
+	AppId  string `env:"APP_ID" envDefault:""`
+	Secret string `env:"SECRET" envDefault:""`
 }
 
 type LogConfig struct {
