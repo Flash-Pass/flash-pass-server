@@ -21,6 +21,7 @@ type IRepository interface {
 	Update(ctx *gin.Context, cardId, question, answer string) (*model.Card, error)
 	Delete(ctx *gin.Context, cardId, userId string) error
 	GetList(ctx *gin.Context, search, userId string) ([]*model.Card, error)
+	GetListByIds(ctx *gin.Context, cardIds []int64) ([]*model.Card, error)
 }
 
 //go:generate mockgen -source=repository.go -destination=./mocks/repository_mock.go -package CardRepositoryMocks
@@ -106,6 +107,11 @@ func (r *Repository) GetList(ctx *gin.Context, search, userId string) ([]*model.
 	}
 
 	return list, nil
+}
+
+// GetListByIds TODO 待实现
+func (r *Repository) GetListByIds(ctx *gin.Context, cardIds []int64) ([]*model.Card, error) {
+	return nil, nil
 }
 
 var _ IRepository = (*Repository)(nil)

@@ -25,7 +25,7 @@ type IService interface {
 
 type Repository interface {
 	Create(ctx *gin.Context, mobile, password string) (*model.User, error)
-	CheckPassword(ctx *gin.Context, mobile, password string) (token string, ok bool)
+	CheckPassword(ctx *gin.Context, mobile, password string) (token int64, ok bool)
 	GetUserById(ctx *gin.Context, userId string) (*model.User, error)
 	GetUserByOpenId(ctx *gin.Context, openId string) (*model.User, error)
 	GetUserByMobile(ctx *gin.Context, mobile string) (*model.User, error)

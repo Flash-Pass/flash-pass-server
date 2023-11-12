@@ -1,4 +1,4 @@
-package card
+package book
 
 import (
 	"github.com/Flash-Pass/flash-pass-server/internal/fpstatus"
@@ -7,23 +7,23 @@ import (
 	"net/http"
 )
 
-type GetCardListRequest struct {
+type GetBookListRequest struct {
+	UserId int64  `json:"user_id,string" form:"user_id,string"`
 	Search string `json:"search" form:"search"`
-	UserId string `json:"id" form:"id"`
 }
 
-func (h *Handler) GetCardListController(ctx *gin.Context) {
-	params := &GetCardListRequest{}
-	if err := ctx.Bind(&params); err != nil {
+func (h *Handler) GetBookListController(ctx *gin.Context) {
+	params := &GetBookListRequest{}
+	if err := ctx.Bind(params); err != nil {
 		res.RespondWithError(ctx, http.StatusBadRequest, fpstatus.ParseParametersError, nil)
 		return
 	}
 
-	cards, err := h.service.GetCardList(ctx, params.Search, params.UserId)
+	books, err := h.service.GetBookList(ctx, params.Search, params.UserId)
 	if err != nil {
 		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return
 	}
 
-	res.RespondSuccess(ctx, cards)
+	res.RespondSuccess(ctx, books)
 }

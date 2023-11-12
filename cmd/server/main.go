@@ -12,7 +12,6 @@ import (
 )
 
 var (
-	//variables *config.EnvVariable
 	handler *api.Handler
 )
 

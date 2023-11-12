@@ -1,7 +1,8 @@
-package card
+package book
 
 import (
 	"github.com/Flash-Pass/flash-pass-server/db/model"
+	"github.com/Flash-Pass/flash-pass-server/entity"
 	"github.com/Flash-Pass/flash-pass-server/internal/fpstatus"
 	"github.com/Flash-Pass/flash-pass-server/internal/paramValidator"
 	"github.com/Flash-Pass/flash-pass-server/internal/res"
@@ -9,31 +10,31 @@ import (
 	"net/http"
 )
 
-type CreateCardRequest struct {
-	Question string `json:"question" binding:"required"`
-	Answer   string `json:"answer" binding:"required"`
+type UpdateBookRequest struct {
+	Id          int64  `json:"id,string" binding:"required"`
+	Title       string `json:"title" binding:"required"`
+	Description string `json:"description" binding:"required"`
 }
 
-func (h *Handler) CreateCardController(ctx *gin.Context) {
+func (h *Handler) UpdateBookController(ctx *gin.Context) {
 	userId, ok := ctx.Get("userId")
 	if !ok {
 		res.RespondWithError(ctx, http.StatusUnauthorized, fpstatus.ParseTokenError, nil)
 		return
 	}
 
-	params := &CreateCardRequest{}
+	params := &UpdateBookRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		paramValidator.RespondWithParamError(ctx, err)
 		return
 	}
 
-	card := model.NewCard(
-		h.snowflakeHandle.GetId().Int64(), params.Question, params.Answer, userId.(int64),
-	)
-	if err := h.service.CreateCard(ctx, card); err != nil {
+	book := model.NewBook(params.Id, params.Title, params.Description, userId.(int64))
+	err := h.service.UpdateBook(ctx, book)
+	if err != nil {
 		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return
 	}
 
-	res.RespondSuccess(ctx, card)
+	res.RespondSuccess(ctx, entity.ConvertToBookVO(book))
 }

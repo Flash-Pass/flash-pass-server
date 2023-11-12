@@ -6,7 +6,7 @@ type Card struct {
 	Base
 	Question  string `json:"question"`
 	Answer    string `json:"answer"`
-	CreatedBy string `json:"created_by" gorm:"index:created_by_user_id"`
+	CreatedBy int64  `json:"created_by" gorm:"index:created_by_user_id"`
 }
 
 type CardQueries interface {
@@ -14,7 +14,7 @@ type CardQueries interface {
 	GetBySearchAndUserId(search, userId string) ([]*gen.T, error)
 }
 
-func NewCard(id, question, answer, createdBy string) *Card {
+func NewCard(id int64, question, answer string, createdBy int64) *Card {
 	return &Card{
 		Base: Base{
 			Id: id,

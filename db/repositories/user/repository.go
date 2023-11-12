@@ -1,6 +1,7 @@
 package user
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -20,7 +21,7 @@ type Repository struct {
 
 type IRepository interface {
 	Create(ctx *gin.Context, mobile, password string) (*model.User, error)
-	CheckPassword(ctx *gin.Context, mobile, password string) (token string, ok bool)
+	CheckPassword(ctx *gin.Context, mobile, password string) (token int64, ok bool)
 	GetUserById(ctx *gin.Context, userId string) (*model.User, error)
 	GetUserByOpenId(ctx *gin.Context, openId string) (*model.User, error)
 	GetUserByMobile(ctx *gin.Context, mobile string) (*model.User, error)
@@ -57,7 +58,7 @@ func (r *Repository) Create(ctx *gin.Context, mobile, password string) (*model.U
 
 	user := &model.User{
 		Base: model.Base{
-			Id: r.snowflakeHandle.GetId().String(),
+			Id: r.snowflakeHandle.GetId().Int64(),
 		},
 		OpenId:   "",
 		Username: mobile,
@@ -76,18 +77,18 @@ func (r *Repository) Create(ctx *gin.Context, mobile, password string) (*model.U
 	return user, nil
 }
 
-func (r *Repository) CheckPassword(ctx *gin.Context, mobile, password string) (token string, ok bool) {
+func (r *Repository) CheckPassword(ctx *gin.Context, mobile, password string) (token int64, ok bool) {
 	logger := ctxlog.GetLogger(ctx)
 
 	user, err := r.user.WithContext(ctx).Where(query.User.Username.Eq(mobile)).First()
 	if err != nil {
 		logger.Error("user not found", zap.Error(err), zap.String("mobile", mobile))
-		return "", false
+		return 0, false
 	}
 
 	if pwd, _ := r.encryptHandle.PasswordEncrypt(password, user.Salt); pwd != user.Password {
 		logger.Warn("check password defeat", zap.String("mobile", mobile), zap.String("password", password))
-		return "", false
+		return 0, false
 	}
 
 	return user.Id, true
@@ -132,14 +133,14 @@ func (r *Repository) GetUserByMobile(ctx *gin.Context, mobile string) (*model.Us
 func (r *Repository) Update(ctx *gin.Context, user *model.User) (*model.User, error) {
 	logger := ctxlog.GetLogger(ctx)
 
-	if _, err := r.user.Where(query.User.Id.Eq(user.Id)).Update(
+	if _, err := r.user.Where(query.User.Id.Eq(fmt.Sprint(user.Id))).Update(
 		query.User.Nickname, user.Nickname,
 	); err != nil {
 		logger.Error("update user defeat", zap.Error(err), zap.Any("user", user))
 		return nil, err
 	}
 
-	user, _ = r.user.Where(query.User.Id.Eq(user.Id)).First()
+	user, _ = r.user.Where(query.User.Id.Eq(fmt.Sprint(user.Id))).First()
 	return user, nil
 }
 

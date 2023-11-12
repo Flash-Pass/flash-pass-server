@@ -10,7 +10,7 @@ import (
 )
 
 type UpdateCardRequest struct {
-	Id       string `json:"id" binding:"required"`
+	Id       int64  `json:"id" binding:"required"`
 	Question string `json:"question" binding:"stringNotBothEmpty=Answer"`
 	Answer   string `json:"answer"`
 }
@@ -23,13 +23,13 @@ func (h *Handler) UpdateCardController(ctx *gin.Context) {
 	}
 
 	params := &UpdateCardRequest{}
-	if err := ctx.ShouldBind(&params); err != nil {
+	if err := ctx.ShouldBind(params); err != nil {
 		paramValidator.RespondWithParamError(ctx, err)
 		return
 	}
 
 	card, err := h.service.UpdateCard(ctx, model.NewCard(
-		params.Id, params.Question, params.Answer, userId.(string),
+		params.Id, params.Question, params.Answer, userId.(int64),
 	))
 	if err != nil {
 		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
