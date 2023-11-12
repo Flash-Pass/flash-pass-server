@@ -13,7 +13,7 @@ func TestCreate(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	card := model.NewCard("1", "2", "3", "4")
+	card := model.NewCard(1, "2", "3", 4)
 
 	t.Run("create success", func(t *testing.T) {
 		mockCard := CardRepositoryMocks.NewMockICard(ctrl)

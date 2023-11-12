@@ -29,7 +29,7 @@ func (h *Handler) update(ctx *gin.Context) {
 
 	user, err := h.service.Update(ctx, &model.User{
 		Base: model.Base{
-			Id: userId.(string),
+			Id: userId.(int64),
 		},
 		Nickname: params.Nickname,
 	})

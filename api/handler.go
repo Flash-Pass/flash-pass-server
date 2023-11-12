@@ -6,14 +6,17 @@ import (
 	"github.com/Flash-Pass/flash-pass-server/internal/wechatClient"
 	"github.com/gin-gonic/gin"
 
+	"github.com/Flash-Pass/flash-pass-server/api/book"
 	"github.com/Flash-Pass/flash-pass-server/api/card"
 	userhandler "github.com/Flash-Pass/flash-pass-server/api/user"
 	"github.com/Flash-Pass/flash-pass-server/config"
 	"github.com/Flash-Pass/flash-pass-server/db"
 	"github.com/Flash-Pass/flash-pass-server/db/query"
+	bookrepo "github.com/Flash-Pass/flash-pass-server/db/repositories/book"
 	cardrepo "github.com/Flash-Pass/flash-pass-server/db/repositories/card"
 	userrepo "github.com/Flash-Pass/flash-pass-server/db/repositories/user"
 	"github.com/Flash-Pass/flash-pass-server/internal/generator"
+	bookservice "github.com/Flash-Pass/flash-pass-server/service/book"
 	cardservice "github.com/Flash-Pass/flash-pass-server/service/card"
 	userservice "github.com/Flash-Pass/flash-pass-server/service/user"
 )
@@ -77,14 +80,17 @@ func (h *Handler) Load(cfg *config.EnvVariable) {
 	userRepository := userrepo.NewRepository(
 		DB, g, e, snowflakeHandle,
 	)
+	bookRepository := bookrepo.NewRepository(DB)
 
 	// TODO: load all services
 	cardService := cardservice.NewService(cardRepository)
 	userService := userservice.NewService(userRepository, wxClient)
+	bookService := bookservice.NewService(bookRepository, cardRepository)
 
 	// TODO: load all handlers
 	cardHandler := card.NewHandler(cardService, 1)
 	userHandler := userhandler.NewHandler(userService)
+	bookHandler := book.NewHandler(bookService, snowflakeHandle)
 
-	h.AddRoutes(cardHandler, userHandler)
+	h.AddRoutes(cardHandler, userHandler, bookHandler)
 }

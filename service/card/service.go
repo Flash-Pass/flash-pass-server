@@ -1,6 +1,7 @@
 package card
 
 import (
+	"fmt"
 	"github.com/Flash-Pass/flash-pass-server/db/model"
 	"github.com/gin-gonic/gin"
 )
@@ -40,7 +41,7 @@ func (s *Service) GetCard(ctx *gin.Context, id string) (*model.Card, error) {
 }
 
 func (s *Service) UpdateCard(ctx *gin.Context, card *model.Card) (*model.Card, error) {
-	return s.cardRepo.Update(ctx, card.Id, card.Question, card.Answer)
+	return s.cardRepo.Update(ctx, fmt.Sprint(card.Id), card.Question, card.Answer)
 }
 
 func (s *Service) DeleteCard(ctx *gin.Context, cardId, userId string) error {

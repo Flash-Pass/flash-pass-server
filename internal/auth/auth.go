@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"fmt"
 	"github.com/Flash-Pass/flash-pass-server/internal/ctxlog"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -20,7 +21,7 @@ var (
 )
 
 type UserClaim struct {
-	Id         string `json:"id"`
+	Id         int64  `json:"id"`
 	OpenId     string `json:"open_id"`
 	SessionKey string `json:"session_key"`
 	UnionId    string `json:"union_id"`
@@ -69,7 +70,7 @@ func ParseInfoWithToken(c *gin.Context, tokenString string) (map[string]string, 
 		return nil, err
 	}
 
-	result[UserId] = claim.Id
+	result[UserId] = fmt.Sprint(claim.Id)
 	result[OpenId] = claim.OpenId
 	result[SessionKey] = claim.SessionKey
 	result[UnionId] = claim.UnionId
