@@ -6,6 +6,7 @@ package query
 
 import (
 	"context"
+	"strings"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -27,7 +28,7 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 
 	tableName := _user.userDo.TableName()
 	_user.ALL = field.NewAsterisk(tableName)
-	_user.Id = field.NewString(tableName, "id")
+	_user.Id = field.NewUint64(tableName, "id")
 	_user.CreatedAt = field.NewTime(tableName, "created_at")
 	_user.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_user.IsDeleted = field.NewBool(tableName, "is_deleted")
@@ -48,7 +49,7 @@ type user struct {
 	userDo
 
 	ALL       field.Asterisk
-	Id        field.String
+	Id        field.Uint64
 	CreatedAt field.Time
 	UpdatedAt field.Time
 	IsDeleted field.Bool
@@ -75,7 +76,7 @@ func (u user) As(alias string) *user {
 
 func (u *user) updateTableName(table string) *user {
 	u.ALL = field.NewAsterisk(table)
-	u.Id = field.NewString(table, "id")
+	u.Id = field.NewUint64(table, "id")
 	u.CreatedAt = field.NewTime(table, "created_at")
 	u.UpdatedAt = field.NewTime(table, "updated_at")
 	u.IsDeleted = field.NewBool(table, "is_deleted")
@@ -187,6 +188,25 @@ type IUserDo interface {
 	Returning(value interface{}, columns ...string) IUserDo
 	UnderlyingDB() *gorm.DB
 	schema.Tabler
+
+	GetBySearchAndUserId(search string, userId uint64) (result []*model.User, err error)
+}
+
+// SELECT * FROM @@table WHERE question LIKE concat("%", @search,"%") OR answer LIKE concat("%", @search,"%") OR created_by = @userId
+func (u userDo) GetBySearchAndUserId(search string, userId uint64) (result []*model.User, err error) {
+	var params []interface{}
+
+	var generateSQL strings.Builder
+	params = append(params, search)
+	params = append(params, search)
+	params = append(params, userId)
+	generateSQL.WriteString("SELECT * FROM users WHERE question LIKE concat(\"%\", ?,\"%\") OR answer LIKE concat(\"%\", ?,\"%\") OR created_by = ? ")
+
+	var executeSQL *gorm.DB
+	executeSQL = u.UnderlyingDB().Raw(generateSQL.String(), params...).Find(&result) // ignore_security_alert
+	err = executeSQL.Error
+
+	return
 }
 
 func (u userDo) Debug() IUserDo {

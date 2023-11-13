@@ -7,7 +7,7 @@ type Book struct {
 	CreatedBy   int64  `json:"createdBy"`
 }
 
-func NewBook(id int64, title, content string, createdBy int64) *Book {
+func NewBook(id uint64, title, content string, createdBy int64) *Book {
 	return &Book{
 		Base: Base{
 			Id: id,

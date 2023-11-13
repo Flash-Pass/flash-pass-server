@@ -1,16 +1,17 @@
 package card
 
 import (
+	"net/http"
+
 	"github.com/Flash-Pass/flash-pass-server/db/model"
 	"github.com/Flash-Pass/flash-pass-server/internal/fpstatus"
 	"github.com/Flash-Pass/flash-pass-server/internal/paramValidator"
 	"github.com/Flash-Pass/flash-pass-server/internal/res"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type UpdateCardRequest struct {
-	Id       int64  `json:"id" binding:"required"`
+	Id       uint64 `json:"id" binding:"required"`
 	Question string `json:"question" binding:"stringNotBothEmpty=Answer"`
 	Answer   string `json:"answer"`
 }
@@ -29,7 +30,7 @@ func (h *Handler) UpdateCardController(ctx *gin.Context) {
 	}
 
 	card, err := h.service.UpdateCard(ctx, model.NewCard(
-		params.Id, params.Question, params.Answer, userId.(int64),
+		params.Id, params.Question, params.Answer, userId.(uint64),
 	))
 	if err != nil {
 		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)

@@ -1,12 +1,13 @@
 package card
 
 import (
+	"net/http"
+
 	"github.com/Flash-Pass/flash-pass-server/db/model"
 	"github.com/Flash-Pass/flash-pass-server/internal/fpstatus"
 	"github.com/Flash-Pass/flash-pass-server/internal/paramValidator"
 	"github.com/Flash-Pass/flash-pass-server/internal/res"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type CreateCardRequest struct {
@@ -28,7 +29,7 @@ func (h *Handler) CreateCardController(ctx *gin.Context) {
 	}
 
 	card := model.NewCard(
-		h.snowflakeHandle.GetId().Int64(), params.Question, params.Answer, userId.(int64),
+		h.snowflakeHandle.GetUInt64Id(), params.Question, params.Answer, userId.(uint64),
 	)
 	if err := h.service.CreateCard(ctx, card); err != nil {
 		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)

@@ -2,6 +2,7 @@ package user
 
 import (
 	"errors"
+
 	"github.com/Flash-Pass/flash-pass-server/db/model"
 	"github.com/Flash-Pass/flash-pass-server/internal/auth"
 	"github.com/Flash-Pass/flash-pass-server/internal/ctxlog"
@@ -20,13 +21,13 @@ type IService interface {
 	LoginViaWeChat(ctx *gin.Context, code string) (token string, err error)
 	Register(ctx *gin.Context, mobile, password string) (token string, err error)
 	Update(ctx *gin.Context, user *model.User) (*model.User, error)
-	GetUser(ctx *gin.Context, openId, mobile, userId string) (*model.User, error)
+	GetUser(ctx *gin.Context, openId, mobile string, userId uint64) (*model.User, error)
 }
 
 type Repository interface {
 	Create(ctx *gin.Context, mobile, password string) (*model.User, error)
-	CheckPassword(ctx *gin.Context, mobile, password string) (token int64, ok bool)
-	GetUserById(ctx *gin.Context, userId string) (*model.User, error)
+	CheckPassword(ctx *gin.Context, mobile, password string) (userId uint64, ok bool)
+	GetUserById(ctx *gin.Context, userId uint64) (*model.User, error)
 	GetUserByOpenId(ctx *gin.Context, openId string) (*model.User, error)
 	GetUserByMobile(ctx *gin.Context, mobile string) (*model.User, error)
 	Update(ctx *gin.Context, user *model.User) (*model.User, error)
@@ -135,7 +136,7 @@ func (s Service) Update(ctx *gin.Context, user *model.User) (*model.User, error)
 	return user, nil
 }
 
-func (s Service) GetUser(ctx *gin.Context, openId, mobile, userId string) (user *model.User, err error) {
+func (s Service) GetUser(ctx *gin.Context, openId, mobile string, userId uint64) (user *model.User, err error) {
 	logger := ctxlog.GetLogger(ctx)
 
 	user = &model.User{}
@@ -156,10 +157,10 @@ func (s Service) GetUser(ctx *gin.Context, openId, mobile, userId string) (user 
 		}
 	}
 
-	if user != nil && userId != "" {
+	if user != nil && userId != 0 {
 		user, err = s.userRepo.GetUserById(ctx, userId)
 		if err != nil {
-			logger.Error("get user by user id defeat", zap.Error(err), zap.String("user id", userId))
+			logger.Error("get user by user id defeat", zap.Error(err), zap.Uint64("user id", userId))
 			return nil, err
 		}
 	}
