@@ -3,12 +3,12 @@ package config
 import (
 	"context"
 	"encoding/json"
-	"github.com/nacos-group/nacos-sdk-go/clients"
-	"github.com/nacos-group/nacos-sdk-go/common/constant"
-	"github.com/nacos-group/nacos-sdk-go/vo"
 	"log"
 
 	"github.com/caarlos0/env/v9"
+	"github.com/nacos-group/nacos-sdk-go/clients"
+	"github.com/nacos-group/nacos-sdk-go/common/constant"
+	"github.com/nacos-group/nacos-sdk-go/vo"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -20,11 +20,17 @@ type EnvVariable struct {
 }
 
 type BaseConfig struct {
-	Name          string `env:"SERVER_NAME" envDefault:"flash_pass_server"`
-	Address       string `env:"SERVER_ADDRESS" envDefault:""`
-	Port          int    `env:"SERVER_PORT" envDefault:"8080"`
-	Namespace     string `env:"SERVER_NAMESPACE" envDefault:"386a677f-cc4f-40f3-b596-ee991acf2a68"`
-	NamespaceUser string `env:"SERVER_NAMESPACE_USER" envDefault:""`
+	Name    string      `env:"SERVER_NAME" envDefault:"flash_pass_server"`
+	Address string      `env:"SERVER_ADDRESS" envDefault:"localhost"`
+	Port    int         `env:"SERVER_PORT" envDefault:"8080"`
+	Nacos   NacosConfig `envPrefix:"NACOS_"`
+}
+
+type NacosConfig struct {
+	Address       string `env:"ADDRESS" envDefault:"localhost"`
+	Port          uint64 `env:"PORT" envDefault:"8848"`
+	Namespace     string `env:"NAMESPACE" envDefault:""`
+	NamespaceUser string `env:"NAMESPACE_USER" envDefault:""`
 }
 
 type MySQLConfig struct {
@@ -86,8 +92,8 @@ func loadDBFromNacos(cfg BaseConfig) (MySQLConfig, error) {
 
 	sc := []constant.ServerConfig{
 		{
-			IpAddr: "0.0.0.0",
-			Port:   18848,
+			IpAddr: cfg.Nacos.Address,
+			Port:   cfg.Nacos.Port,
 		},
 	}
 	if cfg.Address != "" {
@@ -95,7 +101,7 @@ func loadDBFromNacos(cfg BaseConfig) (MySQLConfig, error) {
 	}
 
 	cc := constant.ClientConfig{
-		NamespaceId: cfg.Namespace,
+		NamespaceId: cfg.Nacos.Namespace,
 	}
 
 	configClient, err := clients.CreateConfigClient(map[string]interface{}{
@@ -126,7 +132,7 @@ func loadDBFromNacos(cfg BaseConfig) (MySQLConfig, error) {
 
 	// 本地 dev 环境开发人员的 db 相互独立，通过 username 区分，该 db 需要事先联系管理员创建
 	if dbConfig.Database == "" {
-		dbConfig.Database = cfg.NamespaceUser
+		dbConfig.Database = cfg.Nacos.NamespaceUser
 	}
 
 	return dbConfig, nil
