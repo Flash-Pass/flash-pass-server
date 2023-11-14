@@ -4,10 +4,10 @@ type Book struct {
 	Base
 	Title       string `json:"title"`
 	Description string `json:"description"`
-	CreatedBy   int64  `json:"createdBy"`
+	CreatedBy   uint64 `json:"createdBy"`
 }
 
-func NewBook(id uint64, title, content string, createdBy int64) *Book {
+func NewBook(id uint64, title, content string, createdBy uint64) *Book {
 	return &Book{
 		Base: Base{
 			Id: id,

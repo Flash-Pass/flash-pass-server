@@ -8,7 +8,7 @@ import (
 )
 
 type GetBookListRequest struct {
-	UserId int64  `json:"user_id,string" form:"user_id,string"`
+	UserId uint64 `json:"user_id,string" form:"user_id,string"`
 	Search string `json:"search" form:"search"`
 }
 
