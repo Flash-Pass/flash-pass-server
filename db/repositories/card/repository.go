@@ -110,7 +110,7 @@ func (r *Repository) GetList(ctx *gin.Context, search string, userId uint64) ([]
 }
 
 // GetListByIds TODO 待实现
-func (r *Repository) GetListByIds(ctx *gin.Context, cardIds []int64) ([]*model.Card, error) {
+func (r *Repository) GetListByIds(ctx *gin.Context, cardIds []uint64) ([]*model.Card, error) {
 	return nil, nil
 }
 

@@ -29,7 +29,7 @@ func (h *Handler) UpdateBookController(ctx *gin.Context) {
 		return
 	}
 
-	book := model.NewBook(params.Id, params.Title, params.Description, userId.(int64))
+	book := model.NewBook(params.Id, params.Title, params.Description, userId.(uint64))
 	err := h.service.UpdateBook(ctx, book)
 	if err != nil {
 		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)

@@ -9,7 +9,7 @@ import (
 )
 
 type GetBookRequest struct {
-	Id int64 `json:"id,string" form:"id" binding:"required"`
+	Id uint64 `json:"id,string" form:"id" binding:"required"`
 }
 
 func (h *Handler) GetBookController(ctx *gin.Context) {

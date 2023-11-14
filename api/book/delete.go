@@ -9,12 +9,12 @@ import (
 )
 
 type DeleteBookRequest struct {
-	Id int64 `json:"id,string" binding:"required"`
+	Id uint64 `json:"id,string" binding:"required"`
 }
 
 type DeleteCardFromBookRequest struct {
-	BookId int64 `json:"bookId,string" binding:"required"`
-	CardId int64 `json:"cardId,string" binding:"required"`
+	BookId uint64 `json:"bookId,string" binding:"required"`
+	CardId uint64 `json:"cardId,string" binding:"required"`
 }
 
 func (h *Handler) DeleteBookController(ctx *gin.Context) {
@@ -29,7 +29,7 @@ func (h *Handler) DeleteBookController(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.service.DeleteBook(ctx, params.Id, userId.(int64)); err != nil {
+	if err := h.service.DeleteBook(ctx, params.Id, userId.(uint64)); err != nil {
 		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return
 	}
@@ -50,7 +50,7 @@ func (h *Handler) RemoveCardFromBookController(ctx *gin.Context) {
 		return
 	}
 
-	err := h.service.DeleteCardFromBook(ctx, params.BookId, params.CardId, userId.(int64))
+	err := h.service.DeleteCardFromBook(ctx, params.BookId, params.CardId, userId.(uint64))
 	if err != nil {
 		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return

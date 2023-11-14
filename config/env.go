@@ -21,7 +21,7 @@ type EnvVariable struct {
 
 type BaseConfig struct {
 	Name          string `env:"SERVER_NAME" envDefault:"flash_pass_server"`
-	Address       string `env:"SERVER_ADDRESS" envDefault:"localhost"`
+	Address       string `env:"SERVER_ADDRESS" envDefault:""`
 	Port          int    `env:"SERVER_PORT" envDefault:"8080"`
 	Namespace     string `env:"SERVER_NAMESPACE" envDefault:"386a677f-cc4f-40f3-b596-ee991acf2a68"`
 	NamespaceUser string `env:"SERVER_NAMESPACE_USER" envDefault:""`
@@ -73,11 +73,9 @@ func LoadEnv(ctx context.Context) (*EnvVariable, error) {
 		return nil, err
 	}
 
-	if config.BASE.NamespaceUser != "" {
-		dbConfig, err := loadDBFromNacos(config.BASE)
-		if err == nil {
-			config.MySQL = dbConfig
-		}
+	dbConfig, err := loadDBFromNacos(config.BASE)
+	if err == nil {
+		config.MySQL = dbConfig
 	}
 
 	return config, nil
@@ -92,6 +90,10 @@ func loadDBFromNacos(cfg BaseConfig) (MySQLConfig, error) {
 			Port:   18848,
 		},
 	}
+	if cfg.Address != "" {
+		sc[0].IpAddr = cfg.Address
+	}
+
 	cc := constant.ClientConfig{
 		NamespaceId: cfg.Namespace,
 	}
@@ -121,6 +123,7 @@ func loadDBFromNacos(cfg BaseConfig) (MySQLConfig, error) {
 		log.Println("解析配置失败:", err)
 		return dbConfig, err
 	}
+
 	// 本地 dev 环境开发人员的 db 相互独立，通过 username 区分，该 db 需要事先联系管理员创建
 	if dbConfig.Database == "" {
 		dbConfig.Database = cfg.NamespaceUser

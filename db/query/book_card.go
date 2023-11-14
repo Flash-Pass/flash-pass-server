@@ -14,7 +14,7 @@ func NewBookCardQuery(db *gorm.DB) *BookCardQuery {
 	return &BookCardQuery{db: db}
 }
 
-func (q *BookCardQuery) CheckExistByBookIdAndCardId(bookId, cardId int64) (bool, error) {
+func (q *BookCardQuery) CheckExistByBookIdAndCardId(bookId, cardId uint64) (bool, error) {
 	bookCard := model.BookCard{}
 	if err := q.db.Where("book_id = ? AND card_id = ?", bookId, cardId).Find(&bookCard).Error; err != nil {
 		return false, err
@@ -39,14 +39,14 @@ func (q *BookCardQuery) Create(bookCard *model.BookCard) error {
 	return nil
 }
 
-func (q *BookCardQuery) Delete(bookId, cardId, createdBy int64) error {
+func (q *BookCardQuery) Delete(bookId, cardId, createdBy uint64) error {
 	if err := q.db.Model(&model.BookCard{}).Where("book_id = ? AND card_id = ? AND created_by = ?", bookId, cardId, createdBy).Update("is_deleted", 1).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (q *BookCardQuery) GetBookCardList(bookId int64) ([]*model.BookCard, error) {
+func (q *BookCardQuery) GetBookCardList(bookId uint64) ([]*model.BookCard, error) {
 	bookCardList := make([]*model.BookCard, 0)
 	if err := q.db.Where("book_id = ?", bookId).Find(&bookCardList).Error; err != nil {
 		return nil, err
