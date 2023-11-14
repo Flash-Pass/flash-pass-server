@@ -1,15 +1,16 @@
 package plan
 
 import (
+	"net/http"
+
 	"github.com/Flash-Pass/flash-pass-server/internal/constants"
 	"github.com/Flash-Pass/flash-pass-server/internal/fpstatus"
 	"github.com/Flash-Pass/flash-pass-server/internal/res"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type getListRequest struct {
-	userId uint64 `json:"id"`
+	userId int64 `json:"id"`
 }
 
 func (h *Handler) GetList(ctx *gin.Context) {
@@ -34,7 +35,7 @@ func (h *Handler) GetList(ctx *gin.Context) {
 
 		res.RespondSuccess(ctx, planList)
 	} else {
-		planList, err := h.service.GetList(ctx, userId.(uint64))
+		planList, err := h.service.GetList(ctx, userId.(int64))
 		if err != nil {
 			res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
 			return

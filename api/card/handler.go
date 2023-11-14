@@ -23,10 +23,10 @@ type IHandler interface {
 //go:generate mockgen -source=handler.go -destination=./mocks/handler_mock.go -package CardHandlerMocks
 type Service interface {
 	CreateCard(ctx *gin.Context, card *model.Card) error
-	GetCard(ctx *gin.Context, id uint64) (*model.Card, error)
+	GetCard(ctx *gin.Context, id int64) (*model.Card, error)
 	UpdateCard(ctx *gin.Context, card *model.Card) (*model.Card, error)
-	DeleteCard(ctx *gin.Context, id, userId uint64) error
-	GetCardList(ctx *gin.Context, search string, userId uint64) ([]*model.Card, error)
+	DeleteCard(ctx *gin.Context, id, userId int64) error
+	GetCardList(ctx *gin.Context, search string, userId int64) ([]*model.Card, error)
 }
 
 func NewHandler(service Service, snowflakeNode int64) *Handler {

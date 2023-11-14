@@ -1,13 +1,14 @@
 package plan
 
 import (
+	"net/http"
+
 	"github.com/Flash-Pass/flash-pass-server/db/model"
 	"github.com/Flash-Pass/flash-pass-server/internal/constants"
 	"github.com/Flash-Pass/flash-pass-server/internal/fpstatus"
 	"github.com/Flash-Pass/flash-pass-server/internal/paramValidator"
 	"github.com/Flash-Pass/flash-pass-server/internal/res"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type createRequest struct {
@@ -47,7 +48,7 @@ func (h *Handler) Create(ctx *gin.Context) {
 		ReviewCycles:   params.ReviewCycles,
 		LearnStrategy:  params.LearnStrategy,
 		ReviewStrategy: params.ReviewStrategy,
-		CreatedBy:      userId.(uint64),
+		CreatedBy:      userId.(int64),
 	})
 	if err != nil {
 		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)

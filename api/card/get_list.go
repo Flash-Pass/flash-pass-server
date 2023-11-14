@@ -10,7 +10,7 @@ import (
 
 type GetCardListRequest struct {
 	Search string `json:"search"`
-	UserId uint64 `json:"id"`
+	UserId int64  `json:"id"`
 }
 
 func (h *Handler) GetCardListController(ctx *gin.Context) {

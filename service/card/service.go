@@ -11,18 +11,18 @@ type Service struct {
 
 type IService interface {
 	CreateCard(ctx *gin.Context, card *model.Card) error
-	GetCard(ctx *gin.Context, id uint64) (*model.Card, error)
+	GetCard(ctx *gin.Context, id int64) (*model.Card, error)
 	UpdateCard(ctx *gin.Context, card *model.Card) (*model.Card, error)
-	DeleteCard(ctx *gin.Context, cardId, userId uint64) error
-	GetCardList(ctx *gin.Context, search string, userId uint64) ([]*model.Card, error)
+	DeleteCard(ctx *gin.Context, cardId, userId int64) error
+	GetCardList(ctx *gin.Context, search string, userId int64) ([]*model.Card, error)
 }
 
 type Repository interface {
 	Create(ctx *gin.Context, card *model.Card) error
-	GetById(ctx *gin.Context, cardId uint64) (*model.Card, error)
-	Update(ctx *gin.Context, cardId uint64, question, answer string) (*model.Card, error)
-	Delete(ctx *gin.Context, cardId, userId uint64) error
-	GetList(ctx *gin.Context, search string, userId uint64) ([]*model.Card, error)
+	GetById(ctx *gin.Context, cardId int64) (*model.Card, error)
+	Update(ctx *gin.Context, cardId int64, question, answer string) (*model.Card, error)
+	Delete(ctx *gin.Context, cardId, userId int64) error
+	GetList(ctx *gin.Context, search string, userId int64) ([]*model.Card, error)
 }
 
 func NewService(repo Repository) *Service {
@@ -35,7 +35,7 @@ func (s *Service) CreateCard(ctx *gin.Context, card *model.Card) error {
 	return s.cardRepo.Create(ctx, card)
 }
 
-func (s *Service) GetCard(ctx *gin.Context, id uint64) (*model.Card, error) {
+func (s *Service) GetCard(ctx *gin.Context, id int64) (*model.Card, error) {
 	return s.cardRepo.GetById(ctx, id)
 }
 
@@ -43,11 +43,11 @@ func (s *Service) UpdateCard(ctx *gin.Context, card *model.Card) (*model.Card, e
 	return s.cardRepo.Update(ctx, card.Id, card.Question, card.Answer)
 }
 
-func (s *Service) DeleteCard(ctx *gin.Context, cardId, userId uint64) error {
+func (s *Service) DeleteCard(ctx *gin.Context, cardId, userId int64) error {
 	return s.cardRepo.Delete(ctx, cardId, userId)
 }
 
-func (s *Service) GetCardList(ctx *gin.Context, search string, userId uint64) ([]*model.Card, error) {
+func (s *Service) GetCardList(ctx *gin.Context, search string, userId int64) ([]*model.Card, error) {
 	return s.cardRepo.GetList(ctx, search, userId)
 }
 

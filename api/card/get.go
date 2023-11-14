@@ -10,7 +10,7 @@ import (
 )
 
 type GetCardRequest struct {
-	Id uint64 `json:"id" form:"id" binding:"required"`
+	Id int64 `json:"id" form:"id" binding:"required"`
 }
 
 func (h *Handler) GetCardController(ctx *gin.Context) {

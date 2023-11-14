@@ -25,7 +25,7 @@ type Service interface {
 	LoginViaWeChat(ctx *gin.Context, code string) (token string, err error)
 	Register(ctx *gin.Context, mobile, password string) (token string, err error)
 	Update(ctx *gin.Context, user *model.User) (*model.User, error)
-	GetUser(ctx *gin.Context, openId, mobile string, userId uint64) (*model.User, error)
+	GetUser(ctx *gin.Context, openId, mobile string, userId int64) (*model.User, error)
 }
 
 func NewHandler(service Service) *Handler {

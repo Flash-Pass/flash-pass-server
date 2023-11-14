@@ -22,7 +22,7 @@ var (
 )
 
 type UserClaim struct {
-	Id         uint64 `json:"id"`
+	Id         int64  `json:"id"`
 	OpenId     string `json:"open_id"`
 	SessionKey string `json:"session_key"`
 	UnionId    string `json:"union_id"`

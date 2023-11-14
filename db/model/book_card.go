@@ -2,12 +2,12 @@ package model
 
 type BookCard struct {
 	Base
-	BookId    uint64 `json:"bookId"`
-	CardId    uint64 `json:"cardId"`
-	CreatedBy uint64 `json:"createdBy"`
+	BookId    int64 `json:"bookId"`
+	CardId    int64 `json:"cardId"`
+	CreatedBy int64 `json:"createdBy"`
 }
 
-func NewBookCard(id, bookId, cardId, createdBy uint64) *BookCard {
+func NewBookCard(id, bookId, cardId, createdBy int64) *BookCard {
 	return &BookCard{
 		Base: Base{
 			Id: id,

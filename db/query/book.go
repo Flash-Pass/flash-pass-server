@@ -2,6 +2,7 @@ package query
 
 import (
 	"fmt"
+
 	"github.com/Flash-Pass/flash-pass-server/db/model"
 	"gorm.io/gorm"
 )
@@ -14,7 +15,7 @@ func NewBookQuery(db *gorm.DB) *BookQuery {
 	return &BookQuery{db: db}
 }
 
-func (q *BookQuery) CheckExistByTitleAndUserId(title string, bookId uint64) (bool, error) {
+func (q *BookQuery) CheckExistByTitleAndUserId(title string, bookId int64) (bool, error) {
 	book := model.Book{}
 	if err := q.db.Where("title = ? AND created_by = ?", title, bookId).Find(&book).Error; err != nil {
 		return false, err
@@ -46,7 +47,7 @@ func (q *BookQuery) Update(book *model.Book) error {
 	return nil
 }
 
-func (q *BookQuery) GetById(bookId uint64) (*model.Book, error) {
+func (q *BookQuery) GetById(bookId int64) (*model.Book, error) {
 	book := &model.Book{}
 	if err := q.db.Where("id = ?", bookId).First(book).Error; err != nil {
 		return nil, err
@@ -54,14 +55,14 @@ func (q *BookQuery) GetById(bookId uint64) (*model.Book, error) {
 	return book, nil
 }
 
-func (q *BookQuery) Delete(bookId, userId uint64) error {
+func (q *BookQuery) Delete(bookId, userId int64) error {
 	if err := q.db.Model(&model.Book{}).Where("id = ? AND created_by = ?", bookId, userId).Update("is_deleted", 1).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (q *BookQuery) GetBookList(search string, userId uint64) ([]*model.Book, error) {
+func (q *BookQuery) GetBookList(search string, userId int64) ([]*model.Book, error) {
 	books := make([]*model.Book, 0)
 	if err := q.db.Where("created_by = ? OR title like ? OR description like ?", userId, "%"+search+"%", "%"+search+"%").Find(&books).Error; err != nil {
 		return nil, err

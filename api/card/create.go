@@ -29,7 +29,7 @@ func (h *Handler) CreateCardController(ctx *gin.Context) {
 	}
 
 	card := model.NewCard(
-		h.snowflakeHandle.GetUInt64Id(), params.Question, params.Answer, userId.(uint64),
+		h.snowflakeHandle.GetId().Int64(), params.Question, params.Answer, userId.(int64),
 	)
 	if err := h.service.CreateCard(ctx, card); err != nil {
 		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)

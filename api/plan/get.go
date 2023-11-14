@@ -1,16 +1,17 @@
 package plan
 
 import (
+	"net/http"
+
 	"github.com/Flash-Pass/flash-pass-server/internal/constants"
 	"github.com/Flash-Pass/flash-pass-server/internal/fpstatus"
 	"github.com/Flash-Pass/flash-pass-server/internal/paramValidator"
 	"github.com/Flash-Pass/flash-pass-server/internal/res"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type GetPlanRequest struct {
-	PlanId uint64 `json:"id" form:"id" binding:"required"`
+	PlanId int64 `json:"id" form:"id" binding:"required"`
 }
 
 func (h *Handler) Get(ctx *gin.Context) {
@@ -26,7 +27,7 @@ func (h *Handler) Get(ctx *gin.Context) {
 		return
 	}
 
-	ok, err := h.service.IsPlanBelongToUser(ctx, param.PlanId, userId.(uint64))
+	ok, err := h.service.IsPlanBelongToUser(ctx, param.PlanId, userId.(int64))
 	if !ok {
 		res.RespondWithError(ctx, http.StatusForbidden, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return

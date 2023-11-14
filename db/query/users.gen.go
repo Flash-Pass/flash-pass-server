@@ -28,7 +28,7 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 
 	tableName := _user.userDo.TableName()
 	_user.ALL = field.NewAsterisk(tableName)
-	_user.Id = field.NewUint64(tableName, "id")
+	_user.Id = field.NewInt64(tableName, "id")
 	_user.CreatedAt = field.NewTime(tableName, "created_at")
 	_user.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_user.IsDeleted = field.NewBool(tableName, "is_deleted")
@@ -49,7 +49,7 @@ type user struct {
 	userDo
 
 	ALL       field.Asterisk
-	Id        field.Uint64
+	Id        field.Int64
 	CreatedAt field.Time
 	UpdatedAt field.Time
 	IsDeleted field.Bool
@@ -76,7 +76,7 @@ func (u user) As(alias string) *user {
 
 func (u *user) updateTableName(table string) *user {
 	u.ALL = field.NewAsterisk(table)
-	u.Id = field.NewUint64(table, "id")
+	u.Id = field.NewInt64(table, "id")
 	u.CreatedAt = field.NewTime(table, "created_at")
 	u.UpdatedAt = field.NewTime(table, "updated_at")
 	u.IsDeleted = field.NewBool(table, "is_deleted")
@@ -189,11 +189,11 @@ type IUserDo interface {
 	UnderlyingDB() *gorm.DB
 	schema.Tabler
 
-	GetBySearchAndUserId(search string, userId uint64) (result []*model.User, err error)
+	GetBySearchAndUserId(search string, userId int64) (result []*model.User, err error)
 }
 
 // SELECT * FROM @@table WHERE question LIKE concat("%", @search,"%") OR answer LIKE concat("%", @search,"%") OR created_by = @userId
-func (u userDo) GetBySearchAndUserId(search string, userId uint64) (result []*model.User, err error) {
+func (u userDo) GetBySearchAndUserId(search string, userId int64) (result []*model.User, err error) {
 	var params []interface{}
 
 	var generateSQL strings.Builder

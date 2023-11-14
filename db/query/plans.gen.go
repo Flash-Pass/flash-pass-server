@@ -28,7 +28,7 @@ func newPlan(db *gorm.DB, opts ...gen.DOOption) plan {
 
 	tableName := _plan.planDo.TableName()
 	_plan.ALL = field.NewAsterisk(tableName)
-	_plan.Id = field.NewUint64(tableName, "id")
+	_plan.Id = field.NewInt64(tableName, "id")
 	_plan.CreatedAt = field.NewTime(tableName, "created_at")
 	_plan.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_plan.IsDeleted = field.NewBool(tableName, "is_deleted")
@@ -42,7 +42,7 @@ func newPlan(db *gorm.DB, opts ...gen.DOOption) plan {
 	_plan.ReviewCycles = field.NewInt(tableName, "review_cycles")
 	_plan.LearnStrategy = field.NewString(tableName, "learn_strategy")
 	_plan.ReviewStrategy = field.NewString(tableName, "review_strategy")
-	_plan.CreatedBy = field.NewUint64(tableName, "created_by")
+	_plan.CreatedBy = field.NewInt64(tableName, "created_by")
 
 	_plan.fillFieldMap()
 
@@ -53,7 +53,7 @@ type plan struct {
 	planDo
 
 	ALL            field.Asterisk
-	Id             field.Uint64
+	Id             field.Int64
 	CreatedAt      field.Time
 	UpdatedAt      field.Time
 	IsDeleted      field.Bool
@@ -67,7 +67,7 @@ type plan struct {
 	ReviewCycles   field.Int
 	LearnStrategy  field.String
 	ReviewStrategy field.String
-	CreatedBy      field.Uint64
+	CreatedBy      field.Int64
 
 	fieldMap map[string]field.Expr
 }
@@ -84,7 +84,7 @@ func (p plan) As(alias string) *plan {
 
 func (p *plan) updateTableName(table string) *plan {
 	p.ALL = field.NewAsterisk(table)
-	p.Id = field.NewUint64(table, "id")
+	p.Id = field.NewInt64(table, "id")
 	p.CreatedAt = field.NewTime(table, "created_at")
 	p.UpdatedAt = field.NewTime(table, "updated_at")
 	p.IsDeleted = field.NewBool(table, "is_deleted")
@@ -98,7 +98,7 @@ func (p *plan) updateTableName(table string) *plan {
 	p.ReviewCycles = field.NewInt(table, "review_cycles")
 	p.LearnStrategy = field.NewString(table, "learn_strategy")
 	p.ReviewStrategy = field.NewString(table, "review_strategy")
-	p.CreatedBy = field.NewUint64(table, "created_by")
+	p.CreatedBy = field.NewInt64(table, "created_by")
 
 	p.fillFieldMap()
 
@@ -205,11 +205,11 @@ type IPlanDo interface {
 	UnderlyingDB() *gorm.DB
 	schema.Tabler
 
-	GetBySearchAndUserId(search string, userId uint64) (result []*model.Plan, err error)
+	GetBySearchAndUserId(search string, userId int64) (result []*model.Plan, err error)
 }
 
 // SELECT * FROM @@table WHERE question LIKE concat("%", @search,"%") OR answer LIKE concat("%", @search,"%") OR created_by = @userId
-func (p planDo) GetBySearchAndUserId(search string, userId uint64) (result []*model.Plan, err error) {
+func (p planDo) GetBySearchAndUserId(search string, userId int64) (result []*model.Plan, err error) {
 	var params []interface{}
 
 	var generateSQL strings.Builder
