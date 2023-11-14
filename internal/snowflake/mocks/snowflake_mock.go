@@ -47,17 +47,3 @@ func (mr *MockIHandleMockRecorder) GetId() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetId", reflect.TypeOf((*MockIHandle)(nil).GetId))
 }
-
-// GetUInt64Id mocks base method.
-func (m *MockIHandle) GetUInt64Id() uint64 {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUInt64Id")
-	ret0, _ := ret[0].(uint64)
-	return ret0
-}
-
-// GetUInt64Id indicates an expected call of GetUInt64Id.
-func (mr *MockIHandleMockRecorder) GetUInt64Id() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUInt64Id", reflect.TypeOf((*MockIHandle)(nil).GetUInt64Id))
-}

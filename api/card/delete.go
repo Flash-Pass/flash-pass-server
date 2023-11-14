@@ -10,7 +10,7 @@ import (
 )
 
 type DeleteCardRequest struct {
-	Id uint64 `json:"id" binding:"required"`
+	Id int64 `json:"id" binding:"required"`
 }
 
 func (h *Handler) DeleteCardController(ctx *gin.Context) {
@@ -25,7 +25,7 @@ func (h *Handler) DeleteCardController(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.service.DeleteCard(ctx, params.Id, userId.(uint64)); err != nil {
+	if err := h.service.DeleteCard(ctx, params.Id, userId.(int64)); err != nil {
 		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return
 	}

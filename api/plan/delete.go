@@ -1,15 +1,16 @@
 package plan
 
 import (
+	"net/http"
+
 	"github.com/Flash-Pass/flash-pass-server/internal/constants"
 	"github.com/Flash-Pass/flash-pass-server/internal/fpstatus"
 	"github.com/Flash-Pass/flash-pass-server/internal/res"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type deletePlanRequest struct {
-	planId uint64 `json:"id" binding:"required"`
+	planId int64 `json:"id" binding:"required"`
 }
 
 func (h *Handler) Delete(ctx *gin.Context) {
@@ -25,7 +26,7 @@ func (h *Handler) Delete(ctx *gin.Context) {
 		return
 	}
 
-	ok, err := h.service.IsPlanBelongToUser(ctx, param.planId, userId.(uint64))
+	ok, err := h.service.IsPlanBelongToUser(ctx, param.planId, userId.(int64))
 	if !ok {
 		res.RespondWithError(ctx, http.StatusForbidden, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return

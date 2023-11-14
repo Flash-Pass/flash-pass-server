@@ -1,15 +1,16 @@
 package book
 
 import (
+	"net/http"
+
 	"github.com/Flash-Pass/flash-pass-server/internal/fpstatus"
 	"github.com/Flash-Pass/flash-pass-server/internal/paramValidator"
 	"github.com/Flash-Pass/flash-pass-server/internal/res"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type GetBookRequest struct {
-	Id uint64 `json:"id,string" form:"id" binding:"required"`
+	Id int64 `json:"id,string" form:"id" binding:"required"`
 }
 
 func (h *Handler) GetBookController(ctx *gin.Context) {

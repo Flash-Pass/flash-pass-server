@@ -2,6 +2,7 @@ package plan
 
 import (
 	"errors"
+
 	"github.com/Flash-Pass/flash-pass-server/db/model"
 	"github.com/Flash-Pass/flash-pass-server/db/query"
 	"github.com/Flash-Pass/flash-pass-server/internal/ctxlog"
@@ -16,11 +17,11 @@ type Repository struct {
 
 type IRepository interface {
 	Create(ctx *gin.Context, plan *model.Plan) (*model.Plan, error)
-	IsPlanBelongToUser(ctx *gin.Context, planId, userId uint64) (bool, error)
-	Get(ctx *gin.Context, planId uint64) (*model.Plan, error)
+	IsPlanBelongToUser(ctx *gin.Context, planId, userId int64) (bool, error)
+	Get(ctx *gin.Context, planId int64) (*model.Plan, error)
 	Update(ctx *gin.Context, plan *model.Plan) (*model.Plan, error)
-	Delete(ctx *gin.Context, planId uint64) error
-	GetList(ctx *gin.Context, userId uint64) ([]*model.Plan, error)
+	Delete(ctx *gin.Context, planId int64) error
+	GetList(ctx *gin.Context, userId int64) ([]*model.Plan, error)
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -40,7 +41,7 @@ func (r *Repository) Create(ctx *gin.Context, plan *model.Plan) (*model.Plan, er
 	return plan, nil
 }
 
-func (r *Repository) IsPlanBelongToUser(ctx *gin.Context, planId, userId uint64) (bool, error) {
+func (r *Repository) IsPlanBelongToUser(ctx *gin.Context, planId, userId int64) (bool, error) {
 	logger := ctxlog.GetLogger(ctx)
 
 	plan, err := r.Get(ctx, planId)
@@ -49,19 +50,19 @@ func (r *Repository) IsPlanBelongToUser(ctx *gin.Context, planId, userId uint64)
 	}
 
 	if plan.CreatedBy != userId {
-		logger.Warn("plan not belong to user", zap.Uint64("planId", planId), zap.Uint64("userId", userId))
+		logger.Warn("plan not belong to user", zap.Int64("planId", planId), zap.Int64("userId", userId))
 		return false, err
 	}
 
 	return true, nil
 }
 
-func (r *Repository) Get(ctx *gin.Context, planId uint64) (*model.Plan, error) {
+func (r *Repository) Get(ctx *gin.Context, planId int64) (*model.Plan, error) {
 	logger := ctxlog.GetLogger(ctx)
 
 	plan, err := r.plan.WithContext(ctx).Where(query.Plan.Id.Eq(planId)).First()
 	if err != nil {
-		logger.Error("get plan failed", zap.Error(err), zap.Uint64("planId", planId))
+		logger.Error("get plan failed", zap.Error(err), zap.Int64("planId", planId))
 		return nil, err
 	}
 
@@ -79,7 +80,7 @@ func (r *Repository) Update(ctx *gin.Context, plan *model.Plan) (*model.Plan, er
 	return plan, nil
 }
 
-func (r *Repository) Delete(ctx *gin.Context, planId uint64) error {
+func (r *Repository) Delete(ctx *gin.Context, planId int64) error {
 	logger := ctxlog.GetLogger(ctx)
 
 	affected, err := r.plan.WithContext(ctx).Where(query.Plan.Id.Eq(planId),
@@ -88,19 +89,19 @@ func (r *Repository) Delete(ctx *gin.Context, planId uint64) error {
 		return errors.New("plan not found or plan has been deleted")
 	}
 	if err != nil {
-		logger.Error("delete plan failed", zap.Error(err), zap.Uint64("planId", planId))
+		logger.Error("delete plan failed", zap.Error(err), zap.Int64("planId", planId))
 		return err
 	}
 
 	return nil
 }
 
-func (r *Repository) GetList(ctx *gin.Context, userId uint64) ([]*model.Plan, error) {
+func (r *Repository) GetList(ctx *gin.Context, userId int64) ([]*model.Plan, error) {
 	logger := ctxlog.GetLogger(ctx)
 
 	plans, err := r.plan.WithContext(ctx).Where(query.Plan.CreatedBy.Eq(userId)).Find()
 	if err != nil {
-		logger.Error("get plan list failed", zap.Error(err), zap.Uint64("userId", userId))
+		logger.Error("get plan list failed", zap.Error(err), zap.Int64("userId", userId))
 		return nil, err
 	}
 

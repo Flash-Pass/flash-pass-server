@@ -12,7 +12,7 @@ type Plan struct {
 	ReviewCycles   int    `json:"review_cycles"`
 	LearnStrategy  string `gorm:"type:varchar(20)" json:"learn_strategy"`
 	ReviewStrategy string `gorm:"type:varchar(20)" json:"review_strategy"`
-	CreatedBy      uint64 `gorm:"index" json:"created_by,string"`
+	CreatedBy      int64  `gorm:"index" json:"created_by,string"`
 }
 
 type Queries interface{}

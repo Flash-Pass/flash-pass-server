@@ -133,7 +133,7 @@ func (mr *MockServiceMockRecorder) CreateCard(ctx, card interface{}) *gomock.Cal
 }
 
 // DeleteCard mocks base method.
-func (m *MockService) DeleteCard(ctx *gin.Context, id, userId uint64) error {
+func (m *MockService) DeleteCard(ctx *gin.Context, id, userId int64) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteCard", ctx, id, userId)
 	ret0, _ := ret[0].(error)
@@ -147,7 +147,7 @@ func (mr *MockServiceMockRecorder) DeleteCard(ctx, id, userId interface{}) *gomo
 }
 
 // GetCard mocks base method.
-func (m *MockService) GetCard(ctx *gin.Context, id uint64) (*model.Card, error) {
+func (m *MockService) GetCard(ctx *gin.Context, id int64) (*model.Card, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCard", ctx, id)
 	ret0, _ := ret[0].(*model.Card)
@@ -162,7 +162,7 @@ func (mr *MockServiceMockRecorder) GetCard(ctx, id interface{}) *gomock.Call {
 }
 
 // GetCardList mocks base method.
-func (m *MockService) GetCardList(ctx *gin.Context, search string, userId uint64) ([]*model.Card, error) {
+func (m *MockService) GetCardList(ctx *gin.Context, search string, userId int64) ([]*model.Card, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCardList", ctx, search, userId)
 	ret0, _ := ret[0].([]*model.Card)

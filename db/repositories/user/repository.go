@@ -20,8 +20,8 @@ type Repository struct {
 
 type IRepository interface {
 	Create(ctx *gin.Context, mobile, password string) (*model.User, error)
-	CheckPassword(ctx *gin.Context, mobile, password string) (userId uint64, ok bool)
-	GetUserById(ctx *gin.Context, userId uint64) (*model.User, error)
+	CheckPassword(ctx *gin.Context, mobile, password string) (userId int64, ok bool)
+	GetUserById(ctx *gin.Context, userId int64) (*model.User, error)
 	GetUserByOpenId(ctx *gin.Context, openId string) (*model.User, error)
 	GetUserByMobile(ctx *gin.Context, mobile string) (*model.User, error)
 	Update(ctx *gin.Context, user *model.User) (*model.User, error)
@@ -57,7 +57,7 @@ func (r *Repository) Create(ctx *gin.Context, mobile, password string) (*model.U
 
 	user := &model.User{
 		Base: model.Base{
-			Id: r.snowflakeHandle.GetUInt64Id(),
+			Id: r.snowflakeHandle.GetId().Int64(),
 		},
 		OpenId:   "",
 		Username: mobile,
@@ -76,7 +76,7 @@ func (r *Repository) Create(ctx *gin.Context, mobile, password string) (*model.U
 	return user, nil
 }
 
-func (r *Repository) CheckPassword(ctx *gin.Context, mobile, password string) (userId uint64, ok bool) {
+func (r *Repository) CheckPassword(ctx *gin.Context, mobile, password string) (userId int64, ok bool) {
 	logger := ctxlog.GetLogger(ctx)
 
 	user, err := r.user.WithContext(ctx).Where(query.User.Username.Eq(mobile)).First()
@@ -105,12 +105,12 @@ func (r *Repository) GetUserByOpenId(ctx *gin.Context, openId string) (*model.Us
 	return user, nil
 }
 
-func (r *Repository) GetUserById(ctx *gin.Context, userId uint64) (*model.User, error) {
+func (r *Repository) GetUserById(ctx *gin.Context, userId int64) (*model.User, error) {
 	logger := ctxlog.GetLogger(ctx)
 
 	user, err := r.user.WithContext(ctx).Where(query.User.Id.Eq(userId)).First()
 	if err != nil {
-		logger.Error("user not found", zap.Error(err), zap.Uint64("user id", userId))
+		logger.Error("user not found", zap.Error(err), zap.Int64("user id", userId))
 		return nil, err
 	}
 

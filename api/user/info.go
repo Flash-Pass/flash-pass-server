@@ -1,12 +1,13 @@
 package user
 
 import (
+	"net/http"
+
 	"github.com/Flash-Pass/flash-pass-server/internal/constants"
 	"github.com/Flash-Pass/flash-pass-server/internal/fpstatus"
 	"github.com/Flash-Pass/flash-pass-server/internal/paramValidator"
 	"github.com/Flash-Pass/flash-pass-server/internal/res"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type getInfoRequest struct {
@@ -26,7 +27,7 @@ func (h *Handler) getInfo(c *gin.Context) {
 		return
 	}
 
-	user, err := h.service.GetUser(c, params.openId, params.mobile, userId.(uint64))
+	user, err := h.service.GetUser(c, params.openId, params.mobile, userId.(int64))
 	if err != nil {
 		res.RespondWithError(c, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return

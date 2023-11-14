@@ -1,17 +1,18 @@
 package book
 
 import (
+	"net/http"
+
 	"github.com/Flash-Pass/flash-pass-server/db/model"
 	"github.com/Flash-Pass/flash-pass-server/entity"
 	"github.com/Flash-Pass/flash-pass-server/internal/fpstatus"
 	"github.com/Flash-Pass/flash-pass-server/internal/paramValidator"
 	"github.com/Flash-Pass/flash-pass-server/internal/res"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type UpdateBookRequest struct {
-	Id          uint64 `json:"id,string" binding:"required"`
+	Id          int64  `json:"id,string" binding:"required"`
 	Title       string `json:"title" binding:"required"`
 	Description string `json:"description" binding:"required"`
 }
@@ -29,7 +30,7 @@ func (h *Handler) UpdateBookController(ctx *gin.Context) {
 		return
 	}
 
-	book := model.NewBook(params.Id, params.Title, params.Description, userId.(uint64))
+	book := model.NewBook(params.Id, params.Title, params.Description, userId.(int64))
 	err := h.service.UpdateBook(ctx, book)
 	if err != nil {
 		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)

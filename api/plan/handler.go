@@ -19,11 +19,11 @@ type IHandler interface {
 
 type Service interface {
 	Create(ctx *gin.Context, plan *model.Plan) (*model.Plan, error)
-	IsPlanBelongToUser(ctx *gin.Context, planId, userId uint64) (bool, error)
-	Get(ctx *gin.Context, planId uint64) (*model.Plan, error)
+	IsPlanBelongToUser(ctx *gin.Context, planId, userId int64) (bool, error)
+	Get(ctx *gin.Context, planId int64) (*model.Plan, error)
 	Update(ctx *gin.Context, plan *model.Plan) (*model.Plan, error)
-	Delete(ctx *gin.Context, planId uint64) error
-	GetList(ctx *gin.Context, userId uint64) ([]*model.Plan, error)
+	Delete(ctx *gin.Context, planId int64) error
+	GetList(ctx *gin.Context, userId int64) ([]*model.Plan, error)
 }
 
 func NewHandler(service Service) *Handler {

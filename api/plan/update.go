@@ -1,16 +1,17 @@
 package plan
 
 import (
+	"net/http"
+
 	"github.com/Flash-Pass/flash-pass-server/db/model"
 	"github.com/Flash-Pass/flash-pass-server/internal/constants"
 	"github.com/Flash-Pass/flash-pass-server/internal/fpstatus"
 	"github.com/Flash-Pass/flash-pass-server/internal/res"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type updatePlanRequest struct {
-	PlanId         uint64 `json:"id" binding:"required"`
+	PlanId         int64  `json:"id" binding:"required"`
 	Title          string `json:"title" binding:"required"`
 	Description    string `json:"description"`
 	CycleSize      int    `json:"cycle_size" binding:"required"`
@@ -36,7 +37,7 @@ func (h *Handler) Update(ctx *gin.Context) {
 		return
 	}
 
-	ok, err := h.service.IsPlanBelongToUser(ctx, param.PlanId, userId.(uint64))
+	ok, err := h.service.IsPlanBelongToUser(ctx, param.PlanId, userId.(int64))
 	if !ok {
 		res.RespondWithError(ctx, http.StatusForbidden, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return
