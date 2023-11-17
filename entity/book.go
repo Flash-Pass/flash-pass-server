@@ -9,7 +9,7 @@ type BookVO struct {
 	Id          string    `json:"id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
-	CreatedBy   string    `json:"createdBy"`
+	CreatedBy   string    `json:"created_by"`
 	CardList    []*CardVO `json:"card_list"`
 }
 

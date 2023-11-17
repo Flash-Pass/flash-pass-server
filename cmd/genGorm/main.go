@@ -37,8 +37,13 @@ func main() {
 
 	g.UseDB(db)
 
-	g.ApplyBasic(model.Card{}, model.User{}, model.Plan{})
-	g.ApplyInterface(func(model.CardQueries) {}, model.Card{}, model.User{}, model.Plan{})
+	g.ApplyBasic(model.Card{}, model.User{}, model.Plan{}, model.Task{}, model.TaskCardRecord{}, model.TaskLog{},
+		model.BookCard{})
+	g.ApplyInterface(
+		func(model.CardQueries) {}, model.Card{},
+		model.User{}, model.Plan{}, model.Task{}, model.TaskCardRecord{}, model.TaskLog{},
+		model.BookCard{},
+	)
 
 	g.Execute()
 }

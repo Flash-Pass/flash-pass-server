@@ -13,6 +13,7 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/mattn/go-isatty v0.0.20
 	github.com/nacos-group/nacos-sdk-go v1.1.4
+	github.com/orcaman/concurrent-map/v2 v2.0.1
 	github.com/segmentio/ksuid v1.0.4
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/zap v1.26.0

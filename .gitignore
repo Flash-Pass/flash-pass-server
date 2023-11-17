@@ -5,3 +5,6 @@ go.sum
 
 .github/workflows/lint.yml
 
+*.log
+
+__pycache__
