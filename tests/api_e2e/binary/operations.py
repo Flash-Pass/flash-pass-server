@@ -21,3 +21,14 @@ def login(mobile, password) -> dict:
     resp: requests.Response = api.login(mobile, password)
     data = resp.json()
     return data
+
+
+def get_token_only_login(mobile: str, password: str) -> str:
+    resp: requests.Response = api.login(mobile, password)
+    data = resp.json()
+    return data["data"]
+
+
+def get_token_register_login() -> str:
+    mobile, password, resp = register()
+    return resp["data"]
