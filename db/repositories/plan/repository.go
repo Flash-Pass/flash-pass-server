@@ -13,6 +13,7 @@ import (
 
 type Repository struct {
 	plan query.IPlanDo
+	task query.ITaskDo
 }
 
 type IRepository interface {
@@ -22,11 +23,13 @@ type IRepository interface {
 	Update(ctx *gin.Context, plan *model.Plan) (*model.Plan, error)
 	Delete(ctx *gin.Context, planId int64) error
 	GetList(ctx *gin.Context, userId int64) ([]*model.Plan, error)
+	GetPlanByTaskId(ctx *gin.Context, taskId int64) (*model.Plan, error)
 }
 
 func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{
 		plan: query.Plan.WithContext(db.Statement.Context),
+		task: query.Task.WithContext(db.Statement.Context),
 	}
 }
 
@@ -106,6 +109,24 @@ func (r *Repository) GetList(ctx *gin.Context, userId int64) ([]*model.Plan, err
 	}
 
 	return plans, nil
+}
+
+func (r *Repository) GetPlanByTaskId(ctx *gin.Context, taskId int64) (*model.Plan, error) {
+	logger := ctxlog.GetLogger(ctx)
+
+	task, err := r.task.WithContext(ctx).Where(query.Task.Id.Eq(taskId)).First()
+	if err != nil {
+		logger.Error("get task failed", zap.Error(err), zap.Int64("taskId", taskId))
+		return nil, err
+	}
+
+	plan, err := r.plan.WithContext(ctx).Where(query.Plan.Id.Eq(task.PlanId)).First()
+	if err != nil {
+		logger.Error("get plan failed", zap.Error(err), zap.Int64("planId", task.PlanId))
+		return nil, err
+	}
+
+	return plan, nil
 }
 
 var _ IRepository = (*Repository)(nil)

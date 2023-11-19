@@ -16,44 +16,64 @@ import (
 )
 
 var (
-	Q    = new(Query)
-	Card *card
-	Plan *plan
-	User *user
+	Q              = new(Query)
+	BookCard       *bookCard
+	Card           *card
+	Plan           *plan
+	Task           *task
+	TaskCardRecord *taskCardRecord
+	TaskLog        *taskLog
+	User           *user
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
+	BookCard = &Q.BookCard
 	Card = &Q.Card
 	Plan = &Q.Plan
+	Task = &Q.Task
+	TaskCardRecord = &Q.TaskCardRecord
+	TaskLog = &Q.TaskLog
 	User = &Q.User
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:   db,
-		Card: newCard(db, opts...),
-		Plan: newPlan(db, opts...),
-		User: newUser(db, opts...),
+		db:             db,
+		BookCard:       newBookCard(db, opts...),
+		Card:           newCard(db, opts...),
+		Plan:           newPlan(db, opts...),
+		Task:           newTask(db, opts...),
+		TaskCardRecord: newTaskCardRecord(db, opts...),
+		TaskLog:        newTaskLog(db, opts...),
+		User:           newUser(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	Card card
-	Plan plan
-	User user
+	BookCard       bookCard
+	Card           card
+	Plan           plan
+	Task           task
+	TaskCardRecord taskCardRecord
+	TaskLog        taskLog
+	User           user
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:   db,
-		Card: q.Card.clone(db),
-		Plan: q.Plan.clone(db),
-		User: q.User.clone(db),
+		db:             db,
+		BookCard:       q.BookCard.clone(db),
+		Card:           q.Card.clone(db),
+		Plan:           q.Plan.clone(db),
+		Task:           q.Task.clone(db),
+		TaskCardRecord: q.TaskCardRecord.clone(db),
+		TaskLog:        q.TaskLog.clone(db),
+		User:           q.User.clone(db),
 	}
 }
 
@@ -67,24 +87,36 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:   db,
-		Card: q.Card.replaceDB(db),
-		Plan: q.Plan.replaceDB(db),
-		User: q.User.replaceDB(db),
+		db:             db,
+		BookCard:       q.BookCard.replaceDB(db),
+		Card:           q.Card.replaceDB(db),
+		Plan:           q.Plan.replaceDB(db),
+		Task:           q.Task.replaceDB(db),
+		TaskCardRecord: q.TaskCardRecord.replaceDB(db),
+		TaskLog:        q.TaskLog.replaceDB(db),
+		User:           q.User.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	Card ICardDo
-	Plan IPlanDo
-	User IUserDo
+	BookCard       IBookCardDo
+	Card           ICardDo
+	Plan           IPlanDo
+	Task           ITaskDo
+	TaskCardRecord ITaskCardRecordDo
+	TaskLog        ITaskLogDo
+	User           IUserDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		Card: q.Card.WithContext(ctx),
-		Plan: q.Plan.WithContext(ctx),
-		User: q.User.WithContext(ctx),
+		BookCard:       q.BookCard.WithContext(ctx),
+		Card:           q.Card.WithContext(ctx),
+		Plan:           q.Plan.WithContext(ctx),
+		Task:           q.Task.WithContext(ctx),
+		TaskCardRecord: q.TaskCardRecord.WithContext(ctx),
+		TaskLog:        q.TaskLog.WithContext(ctx),
+		User:           q.User.WithContext(ctx),
 	}
 }
 
