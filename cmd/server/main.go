@@ -27,6 +27,7 @@ func init() {
 		api.WithRoot(gin.Default()),
 		api.WithMiddleware(
 			middlewares.PreRequest(),
+			middlewares.CORS(variables.BASE.InDev),
 			middlewares.GinLogger(),
 			middlewares.GinRecovery(true),
 			middlewares.Authorize(),
