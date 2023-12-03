@@ -2,10 +2,9 @@ package main
 
 import (
 	"flag"
-	"github.com/Flash-Pass/flash-pass-server/db/model"
-
 	"github.com/Flash-Pass/flash-pass-server/config"
 	"github.com/Flash-Pass/flash-pass-server/db"
+	"github.com/Flash-Pass/flash-pass-server/db/model"
 )
 
 var (
@@ -30,7 +29,8 @@ func main() {
 	}
 
 	err = db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(
-		&model.User{}, &model.Card{}, &model.Plan{},
+		&model.Book{}, &model.BookCard{}, &model.Card{}, &model.Plan{},
+		&model.Task{}, &model.TaskCardRecord{}, &model.TaskLog{}, &model.User{},
 	)
 
 	db.Migrator()

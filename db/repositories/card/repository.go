@@ -13,12 +13,15 @@ import (
 )
 
 type Repository struct {
-	card query.ICardDo
+	query    *query.Query
+	card     query.ICardDo
+	bookCard query.IBookCardDo
 }
 
 //go:generate mockgen -source=repository.go -destination=./mocks/repository_mock.go -package CardRepositoryMocks
 type IRepository interface {
 	Create(ctx *gin.Context, card *model.Card) error
+	CreateCardAndAddToBook(ctx *gin.Context, card *model.Card, bookId int64) error
 	GetById(ctx *gin.Context, cardId int64) (*model.Card, error)
 	Update(ctx *gin.Context, cardId int64, question, answer string) (*model.Card, error)
 	Delete(ctx *gin.Context, cardId, userId int64) error
@@ -33,7 +36,8 @@ type ICard interface {
 
 func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{
-		card: query.Card.WithContext(db.Statement.Context),
+		query: query.Use(db),
+		card:  query.Card.WithContext(db.Statement.Context),
 	}
 }
 
@@ -46,6 +50,33 @@ func (r *Repository) Create(ctx *gin.Context, card *model.Card) error {
 	}
 
 	return nil
+}
+
+func (r *Repository) CreateCardAndAddToBook(ctx *gin.Context, card *model.Card, bookId int64) error {
+	logger := ctxlog.GetLogger(ctx)
+
+	tx := r.query.Begin()
+	defer func() {
+		if err := recover(); err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Card.WithContext(ctx).Create(card); err != nil {
+		logger.Error("create card defeat", zap.Error(err), zap.Any("card", card))
+		return err
+	}
+
+	if err := tx.BookCard.WithContext(ctx).Create(&model.BookCard{
+		BookId:    bookId,
+		CardId:    card.Id,
+		CreatedBy: card.CreatedBy,
+	}); err != nil {
+		logger.Error("add card to book defeat", zap.Error(err), zap.Int64("card id", card.Id), zap.Int64("book id", bookId))
+		return err
+	}
+
+	return tx.Commit()
 }
 
 func (r *Repository) GetById(ctx *gin.Context, cardId int64) (*model.Card, error) {
@@ -96,13 +127,16 @@ func (r *Repository) Delete(ctx *gin.Context, cardId, userId int64) error {
 	return nil
 }
 
-// GetList use search and userId to get a card list.
-// If searched string in question or answer in a card, it will be added to the result list.
-// If a card matched by the given user id, it also will be added to the result list.
 func (r *Repository) GetList(ctx *gin.Context, search string, userId int64) ([]*model.Card, error) {
 	logger := ctxlog.GetLogger(ctx)
 
-	list, err := r.card.GetBySearchAndUserId(search, userId)
+	list, err := r.card.Where(
+		query.Card.CreatedBy.Eq(userId),
+		query.Card.IsDeleted.Is(false),
+	).Where(
+		query.Card.Question.Like("%"+search+"%"),
+		query.Card.Answer.Like("%"+search+"%"),
+	).Find()
 	if err != nil {
 		logger.Error("search card list defeat", zap.Error(err), zap.String("search string", search), zap.Int64("user id", userId))
 		return nil, err

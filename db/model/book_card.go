@@ -3,7 +3,9 @@ package model
 type BookCard struct {
 	Base
 	BookId    int64 `json:"bookId"`
+	Book      Book  `gorm:"ForeignKey:BookId;AssociationForeignKey:Id" json:"book"`
 	CardId    int64 `json:"cardId"`
+	Card      Card  `gorm:"ForeignKey:CardId;AssociationForeignKey:Id" json:"card"`
 	CreatedBy int64 `json:"createdBy"`
 }
 

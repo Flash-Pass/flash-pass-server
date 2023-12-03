@@ -11,8 +11,10 @@ import (
 )
 
 type CreateCardRequest struct {
-	Question string `json:"question" binding:"required"`
-	Answer   string `json:"answer" binding:"required"`
+	Question    string `json:"question" binding:"required"`
+	Answer      string `json:"answer" binding:"required"`
+	IsAddToBook bool   `json:"is_add_to_book"`
+	BookId      int64  `json:"book_id,string"`
 }
 
 func (h *Handler) CreateCardController(ctx *gin.Context) {
@@ -31,9 +33,17 @@ func (h *Handler) CreateCardController(ctx *gin.Context) {
 	card := model.NewCard(
 		h.snowflakeHandle.GetId().Int64(), params.Question, params.Answer, userId.(int64),
 	)
-	if err := h.service.CreateCard(ctx, card); err != nil {
-		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
-		return
+
+	if !params.IsAddToBook {
+		if err := h.service.CreateCard(ctx, card); err != nil {
+			res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
+			return
+		}
+	} else {
+		if err := h.service.CreateCardAndAddToBook(ctx, card, params.BookId); err != nil {
+			res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
+			return
+		}
 	}
 
 	res.RespondSuccess(ctx, card)

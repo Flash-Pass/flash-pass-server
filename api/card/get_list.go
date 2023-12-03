@@ -20,6 +20,15 @@ func (h *Handler) GetCardListController(ctx *gin.Context) {
 		return
 	}
 
+	if params.UserId == 0 {
+		userId, ok := ctx.Get("userId")
+		if !ok {
+			res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage("parse token error"), nil)
+			return
+		}
+		params.UserId = userId.(int64)
+	}
+
 	cards, err := h.service.GetCardList(ctx, params.Search, params.UserId)
 	if err != nil {
 		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)

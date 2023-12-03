@@ -64,8 +64,16 @@ func (q *BookQuery) Delete(bookId, userId int64) error {
 
 func (q *BookQuery) GetBookList(search string, userId int64) ([]*model.Book, error) {
 	books := make([]*model.Book, 0)
-	if err := q.db.Where("created_by = ? OR title like ? OR description like ?", userId, "%"+search+"%", "%"+search+"%").Find(&books).Error; err != nil {
+	if err := q.db.Where("created_by = ?", userId).Where("title like ? OR description like ?", "%"+search+"%", "%"+search+"%").Find(&books).Error; err != nil {
 		return nil, err
 	}
 	return books, nil
+}
+
+func (q *BookQuery) CountById(bookId int64) (int64, error) {
+	var count int64
+	if err := q.db.Model(&model.Book{}).Where("id = ?", bookId).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
 }

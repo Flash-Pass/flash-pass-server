@@ -1,6 +1,7 @@
 package book
 
 import (
+	"github.com/Flash-Pass/flash-pass-server/internal/constants"
 	"net/http"
 
 	"github.com/Flash-Pass/flash-pass-server/internal/fpstatus"
@@ -14,13 +15,19 @@ type GetBookListRequest struct {
 }
 
 func (h *Handler) GetBookListController(ctx *gin.Context) {
+	userId, ok := ctx.Get(constants.CtxUserIdKey)
+	if !ok {
+		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage("parse token error"), nil)
+		return
+	}
+
 	params := &GetBookListRequest{}
 	if err := ctx.Bind(params); err != nil {
 		res.RespondWithError(ctx, http.StatusBadRequest, fpstatus.ParseParametersError, nil)
 		return
 	}
 
-	books, err := h.service.GetBookList(ctx, params.Search, params.UserId)
+	books, err := h.service.GetBookList(ctx, params.Search, userId.(int64))
 	if err != nil {
 		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return

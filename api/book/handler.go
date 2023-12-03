@@ -19,6 +19,7 @@ type IHandler interface {
 	GetBookListController(ctx *gin.Context)
 	AddCardToBookController(ctx *gin.Context)
 	RemoveCardFromBookController(ctx *gin.Context)
+	GetBookCardListController(ctx *gin.Context)
 }
 
 func NewHandler(service book.IService, snowflake *snowflake.Handle) *Handler {
@@ -42,6 +43,10 @@ func (h *Handler) AddRoutes(r *gin.Engine) {
 			{
 				card.POST("/", h.AddCardToBookController)
 				card.DELETE("/", h.RemoveCardFromBookController)
+				list := card.Group("/list")
+				{
+					list.GET("/", h.GetBookCardListController)
+				}
 			}
 		}
 	}

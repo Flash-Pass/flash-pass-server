@@ -23,6 +23,7 @@ type IService interface {
 	GetBookList(ctx *gin.Context, search string, userId int64) ([]*entity.BookVO, error)
 	AddCardToBook(ctx *gin.Context, bookCard *model.BookCard) error
 	DeleteCardFromBook(ctx *gin.Context, bookId, cardId, userId int64) error
+	GetBookCardList(ctx *gin.Context, bookId int64) ([]*model.Card, error)
 }
 
 type cardRepository interface {
@@ -94,4 +95,16 @@ func (s *Service) AddCardToBook(ctx *gin.Context, bookCard *model.BookCard) erro
 
 func (s *Service) DeleteCardFromBook(ctx *gin.Context, bookId, cardId, userId int64) error {
 	return s.bookRepo.DeleteBookCard(ctx, bookId, cardId, userId)
+}
+
+func (s *Service) GetBookCardList(ctx *gin.Context, bookId int64) ([]*model.Card, error) {
+	bookCards, err := s.bookRepo.GetBookCardList(ctx, bookId)
+	if err != nil {
+		return nil, err
+	}
+	cards := make([]*model.Card, 0, len(bookCards))
+	for _, bookCard := range bookCards {
+		cards = append(cards, &bookCard.Card)
+	}
+	return cards, nil
 }

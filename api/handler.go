@@ -101,7 +101,7 @@ func (h *Handler) Load(cfg *config.EnvVariable) {
 	taskLogRepository := taskLogRepo.NewRepository(DB)
 
 	// TODO: load all services
-	cardService := cardservice.NewService(cardRepository)
+	cardService := cardservice.NewService(cardRepository, bookRepository)
 	userService := userservice.NewService(userRepository, wxClient)
 	bookService := bookservice.NewService(bookRepository, cardRepository)
 	planService := planservice.NewService(planRepository, snowflakeHandle)

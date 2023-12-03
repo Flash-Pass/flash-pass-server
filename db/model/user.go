@@ -8,5 +8,5 @@ type User struct {
 	Salt     string `json:"-"`
 	Nickname string `json:"nickname"`
 	Mobile   string `gorm:"type:char(11);index" json:"mobile"`
-	Avatar   string `gorm:"type:text;index" json:"avatar"`
+	Avatar   string `gorm:"type:text" json:"avatar"`
 }

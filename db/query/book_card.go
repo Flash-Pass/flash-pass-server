@@ -49,7 +49,7 @@ func (q *BookCardQuery) Delete(bookId, cardId, createdBy int64) error {
 
 func (q *BookCardQuery) GetBookCardList(bookId int64) ([]*model.BookCard, error) {
 	bookCardList := make([]*model.BookCard, 0)
-	if err := q.db.Where("book_id = ?", bookId).Find(&bookCardList).Error; err != nil {
+	if err := q.db.Preload("Book").Preload("Card").Where("book_id = ?", bookId).Find(&bookCardList).Error; err != nil {
 		return nil, err
 	}
 	return bookCardList, nil

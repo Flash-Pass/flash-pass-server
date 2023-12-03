@@ -18,8 +18,8 @@ type CreateBookRequest struct {
 }
 
 type AddCardToBookRequest struct {
-	BookId int64 `json:"bookId,string" binding:"required"`
-	CardId int64 `json:"cardId,string" binding:"required"`
+	BookId int64 `json:"book_id,string" binding:"required"`
+	CardId int64 `json:"card_id,string" binding:"required"`
 }
 
 func (h *Handler) CreateBookController(ctx *gin.Context) {

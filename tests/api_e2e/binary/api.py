@@ -24,3 +24,28 @@ class API:
             "mobile": mobile,
             "password": password
         })
+
+    def create_book(self, token: str, title: str, description: str = ""):
+        return requests.post(f"{self.BASE_URL}/book", json={
+            "title": title,
+            "description": description
+        }, headers={
+            "Authorization": token
+        })
+
+    def create_card(self, token: str, book_id: int, add_to_book: bool, question: str, answer: str):
+        return requests.post(f"{self.BASE_URL}/card", json={
+            "question": question,
+            "answer": answer,
+            "is_add_to_book": add_to_book,
+            "book_id": book_id
+        }, headers={
+            "Authorization": token
+        })
+
+    def get_book_card_list(self, token: str, book_id: int):
+        return requests.get(f"{self.BASE_URL}/book/card/list", json={
+            "book_id": book_id
+        }, headers={
+            "Authorization": token
+        })

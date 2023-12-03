@@ -10,3 +10,6 @@ def user_mobile() -> str:
 
 def user_password() -> str:
     return "".join(random.choices(string.ascii_lowercase, k=12))
+
+def text(size: int) -> str:
+    return "".join(random.choices(string.ascii_lowercase, k=size))

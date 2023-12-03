@@ -24,6 +24,7 @@ type IRepository interface {
 	GetBookCardList(ctx *gin.Context, bookId int64) ([]*model.BookCard, error)
 	CreateBookCard(ctx *gin.Context, bookCard *model.BookCard) error
 	DeleteBookCard(ctx *gin.Context, bookId, cardId, createdBy int64) error
+	IsBookIdExist(ctx *gin.Context, bookId int64) (bool, error)
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -90,4 +91,15 @@ func (r *Repository) DeleteBookCard(ctx *gin.Context, bookId, cardId, createdBy 
 		return err
 	}
 	return nil
+}
+
+func (r *Repository) IsBookIdExist(ctx *gin.Context, bookId int64) (bool, error) {
+	cnt, err := r.bookQuery.CountById(bookId)
+	if err != nil {
+		return false, err
+	}
+	if cnt == 0 {
+		return false, nil
+	}
+	return true, nil
 }
