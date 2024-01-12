@@ -10,7 +10,6 @@ import (
 
 	model "github.com/Flash-Pass/flash-pass-server/db/model"
 	query "github.com/Flash-Pass/flash-pass-server/db/query"
-	gin "github.com/gin-gonic/gin"
 	gomock "github.com/golang/mock/gomock"
 	gen "gorm.io/gen"
 	field "gorm.io/gen/field"
@@ -43,7 +42,7 @@ func (m *MockIRepository) EXPECT() *MockIRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockIRepository) Create(c *gin.Context, card *model.Card) error {
+func (m *MockIRepository) Create(ctx context.Context, card *model.Card) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", ctx, card)
 	ret0, _ := ret[0].(error)
@@ -57,7 +56,7 @@ func (mr *MockIRepositoryMockRecorder) Create(ctx, card interface{}) *gomock.Cal
 }
 
 // Delete mocks base method.
-func (m *MockIRepository) Delete(c *gin.Context, cardId, userId int64) error {
+func (m *MockIRepository) Delete(ctx context.Context, cardId, userId int64) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Delete", ctx, cardId, userId)
 	ret0, _ := ret[0].(error)
@@ -71,7 +70,7 @@ func (mr *MockIRepositoryMockRecorder) Delete(ctx, cardId, userId interface{}) *
 }
 
 // GetById mocks base method.
-func (m *MockIRepository) GetById(c *gin.Context, cardId int64) (*model.Card, error) {
+func (m *MockIRepository) GetById(ctx context.Context, cardId int64) (*model.Card, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetById", ctx, cardId)
 	ret0, _ := ret[0].(*model.Card)
@@ -86,7 +85,7 @@ func (mr *MockIRepositoryMockRecorder) GetById(ctx, cardId interface{}) *gomock.
 }
 
 // GetList mocks base method.
-func (m *MockIRepository) GetList(c *gin.Context, search string, userId int64) ([]*model.Card, error) {
+func (m *MockIRepository) GetList(ctx context.Context, search string, userId int64) ([]*model.Card, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetList", ctx, search, userId)
 	ret0, _ := ret[0].([]*model.Card)
@@ -100,8 +99,23 @@ func (mr *MockIRepositoryMockRecorder) GetList(ctx, search, userId interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetList", reflect.TypeOf((*MockIRepository)(nil).GetList), ctx, search, userId)
 }
 
+// GetListByIds mocks base method.
+func (m *MockIRepository) GetListByIds(ctx context.Context, cardIds []int64) ([]*model.Card, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetListByIds", ctx, cardIds)
+	ret0, _ := ret[0].([]*model.Card)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetListByIds indicates an expected call of GetListByIds.
+func (mr *MockIRepositoryMockRecorder) GetListByIds(ctx, cardIds interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetListByIds", reflect.TypeOf((*MockIRepository)(nil).GetListByIds), ctx, cardIds)
+}
+
 // Update mocks base method.
-func (m *MockIRepository) Update(c *gin.Context, cardId int64, question, answer string) (*model.Card, error) {
+func (m *MockIRepository) Update(ctx context.Context, cardId int64, question, answer string) (*model.Card, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", ctx, cardId, question, answer)
 	ret0, _ := ret[0].(*model.Card)

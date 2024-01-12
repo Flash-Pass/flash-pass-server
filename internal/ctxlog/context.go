@@ -14,10 +14,10 @@ const (
 	Logger    = "logger"
 )
 
-func WithRequestID(ctx context.Context) string {
+func WithRequestID(ctx context.Context) (context.Context, string) {
 	requestId := ksuid.New().String()[0:20]
 	ctx = context.WithValue(ctx, RequestID, requestId)
-	return requestId
+	return ctx, requestId
 }
 
 func GetRequestID(ctx context.Context) string {

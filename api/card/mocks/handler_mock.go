@@ -5,6 +5,7 @@
 package CardHandlerMocks
 
 import (
+	context "context"
 	reflect "reflect"
 
 	model "github.com/Flash-Pass/flash-pass-server/db/model"
@@ -38,61 +39,61 @@ func (m *MockIHandler) EXPECT() *MockIHandlerMockRecorder {
 // CreateCardController mocks base method.
 func (m *MockIHandler) CreateCardController(c *gin.Context) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "CreateCardController", ctx)
+	m.ctrl.Call(m, "CreateCardController", c)
 }
 
 // CreateCardController indicates an expected call of CreateCardController.
-func (mr *MockIHandlerMockRecorder) CreateCardController(ctx interface{}) *gomock.Call {
+func (mr *MockIHandlerMockRecorder) CreateCardController(c interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCardController", reflect.TypeOf((*MockIHandler)(nil).CreateCardController), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCardController", reflect.TypeOf((*MockIHandler)(nil).CreateCardController), c)
 }
 
 // DeleteCardController mocks base method.
 func (m *MockIHandler) DeleteCardController(c *gin.Context) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "DeleteCardController", ctx)
+	m.ctrl.Call(m, "DeleteCardController", c)
 }
 
 // DeleteCardController indicates an expected call of DeleteCardController.
-func (mr *MockIHandlerMockRecorder) DeleteCardController(ctx interface{}) *gomock.Call {
+func (mr *MockIHandlerMockRecorder) DeleteCardController(c interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteCardController", reflect.TypeOf((*MockIHandler)(nil).DeleteCardController), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteCardController", reflect.TypeOf((*MockIHandler)(nil).DeleteCardController), c)
 }
 
 // GetCardController mocks base method.
 func (m *MockIHandler) GetCardController(c *gin.Context) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "GetCardController", ctx)
+	m.ctrl.Call(m, "GetCardController", c)
 }
 
 // GetCardController indicates an expected call of GetCardController.
-func (mr *MockIHandlerMockRecorder) GetCardController(ctx interface{}) *gomock.Call {
+func (mr *MockIHandlerMockRecorder) GetCardController(c interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCardController", reflect.TypeOf((*MockIHandler)(nil).GetCardController), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCardController", reflect.TypeOf((*MockIHandler)(nil).GetCardController), c)
 }
 
 // GetCardListController mocks base method.
 func (m *MockIHandler) GetCardListController(c *gin.Context) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "GetCardListController", ctx)
+	m.ctrl.Call(m, "GetCardListController", c)
 }
 
 // GetCardListController indicates an expected call of GetCardListController.
-func (mr *MockIHandlerMockRecorder) GetCardListController(ctx interface{}) *gomock.Call {
+func (mr *MockIHandlerMockRecorder) GetCardListController(c interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCardListController", reflect.TypeOf((*MockIHandler)(nil).GetCardListController), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCardListController", reflect.TypeOf((*MockIHandler)(nil).GetCardListController), c)
 }
 
 // UpdateCardController mocks base method.
 func (m *MockIHandler) UpdateCardController(c *gin.Context) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "UpdateCardController", ctx)
+	m.ctrl.Call(m, "UpdateCardController", c)
 }
 
 // UpdateCardController indicates an expected call of UpdateCardController.
-func (mr *MockIHandlerMockRecorder) UpdateCardController(ctx interface{}) *gomock.Call {
+func (mr *MockIHandlerMockRecorder) UpdateCardController(c interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCardController", reflect.TypeOf((*MockIHandler)(nil).UpdateCardController), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCardController", reflect.TypeOf((*MockIHandler)(nil).UpdateCardController), c)
 }
 
 // MockService is a mock of Service interface.
@@ -119,7 +120,7 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // CreateCard mocks base method.
-func (m *MockService) CreateCard(c *gin.Context, card *model.Card) error {
+func (m *MockService) CreateCard(ctx context.Context, card *model.Card) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateCard", ctx, card)
 	ret0, _ := ret[0].(error)
@@ -132,8 +133,22 @@ func (mr *MockServiceMockRecorder) CreateCard(ctx, card interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCard", reflect.TypeOf((*MockService)(nil).CreateCard), ctx, card)
 }
 
+// CreateCardAndAddToBook mocks base method.
+func (m *MockService) CreateCardAndAddToBook(ctx context.Context, card *model.Card, bookId int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateCardAndAddToBook", ctx, card, bookId)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateCardAndAddToBook indicates an expected call of CreateCardAndAddToBook.
+func (mr *MockServiceMockRecorder) CreateCardAndAddToBook(ctx, card, bookId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCardAndAddToBook", reflect.TypeOf((*MockService)(nil).CreateCardAndAddToBook), ctx, card, bookId)
+}
+
 // DeleteCard mocks base method.
-func (m *MockService) DeleteCard(c *gin.Context, id, userId int64) error {
+func (m *MockService) DeleteCard(ctx context.Context, id, userId int64) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteCard", ctx, id, userId)
 	ret0, _ := ret[0].(error)
@@ -147,7 +162,7 @@ func (mr *MockServiceMockRecorder) DeleteCard(ctx, id, userId interface{}) *gomo
 }
 
 // GetCard mocks base method.
-func (m *MockService) GetCard(c *gin.Context, id int64) (*model.Card, error) {
+func (m *MockService) GetCard(ctx context.Context, id int64) (*model.Card, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCard", ctx, id)
 	ret0, _ := ret[0].(*model.Card)
@@ -162,7 +177,7 @@ func (mr *MockServiceMockRecorder) GetCard(ctx, id interface{}) *gomock.Call {
 }
 
 // GetCardList mocks base method.
-func (m *MockService) GetCardList(c *gin.Context, search string, userId int64) ([]*model.Card, error) {
+func (m *MockService) GetCardList(ctx context.Context, search string, userId int64) ([]*model.Card, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCardList", ctx, search, userId)
 	ret0, _ := ret[0].([]*model.Card)
@@ -177,7 +192,7 @@ func (mr *MockServiceMockRecorder) GetCardList(ctx, search, userId interface{}) 
 }
 
 // UpdateCard mocks base method.
-func (m *MockService) UpdateCard(c *gin.Context, card *model.Card) (*model.Card, error) {
+func (m *MockService) UpdateCard(ctx context.Context, card *model.Card) (*model.Card, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateCard", ctx, card)
 	ret0, _ := ret[0].(*model.Card)
