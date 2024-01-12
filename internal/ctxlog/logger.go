@@ -1,9 +1,9 @@
 package ctxlog
 
 import (
+	"context"
 	"reflect"
 
-	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -14,15 +14,35 @@ var (
 
 var DefaultLogger = zap.NewNop()
 
-//type loggerKey struct{}
+type loggerKey struct{}
+
 //type namespaceKey struct{}
 //type globalFieldKey struct{}
 
 const (
-	loggerKey      = "logger_key"
 	namespaceKey   = "namespace_key"
 	globalFieldKey = "global_field_key"
 )
+
+func Extract(ctx context.Context) *zap.Logger {
+	v := ctx.Value(loggerKey{})
+	if v == nil {
+		return DefaultLogger.With(zap.String("logger", "default"))
+	}
+
+	logger, ok := v.(*zap.Logger)
+	if !ok {
+		return DefaultLogger.With(zap.String("logger", "default"))
+	}
+
+	logger = logger.With(zap.String("logger", "ctx"))
+	return WithContextFields(ctx, logger)
+}
+
+func WithLogger(ctx context.Context) context.Context {
+	ctx = context.WithValue(ctx, loggerKey{}, DefaultLogger)
+	return ctx
+}
 
 func SetLogger(logger *zap.Logger) *zap.Logger {
 	DefaultLogger = logger
@@ -33,7 +53,7 @@ func SetLogger(logger *zap.Logger) *zap.Logger {
 // It will nest any following fields until another zap.Namespace is provided.
 // The difference with pure zap.Namespaces are that when you define a namespace, any following attached
 // logger will be nested, not only when you call logger.With
-func AddFields(ctx *gin.Context, fields ...zap.Field) *gin.Context {
+func AddFields(ctx context.Context, fields ...zap.Field) context.Context {
 	namespaces := extractNamespaces(ctx)
 	globalFields := extractGlobalfields(ctx)
 
@@ -51,14 +71,14 @@ func AddFields(ctx *gin.Context, fields ...zap.Field) *gin.Context {
 		}
 	}
 
-	ctx.Set(namespaceKey, namespaces)
-	ctx.Set(globalFieldKey, globalFieldKey)
+	ctx = context.WithValue(ctx, namespaceKey, namespaces)
+	ctx = context.WithValue(ctx, globalFieldKey, globalFields)
 
 	return ctx
 }
 
 // WithContextFields adds context fields to the zap.Logger
-func WithContextFields(ctx *gin.Context, logger *zap.Logger) *zap.Logger {
+func WithContextFields(ctx context.Context, logger *zap.Logger) *zap.Logger {
 	ctx = AddFields(
 		ctx, zap.String("RequestId", GetRequestID(ctx)),
 	)
@@ -73,14 +93,19 @@ func WithContextFields(ctx *gin.Context, logger *zap.Logger) *zap.Logger {
 	return logger
 }
 
-func extractNamespaces(ctx *gin.Context) map[zapcore.Field][]zapcore.Field {
-	ctxValue, ok := ctx.Get(namespaceKey)
+func extractNamespaces(ctx context.Context) map[zapcore.Field][]zapcore.Field {
+	v := ctx.Value(namespaceKey)
+	if v == nil {
+		return nil
+	}
+
+	ctxValue, ok := v.(map[zapcore.Field][]zapcore.Field)
 	if !ok {
 		return nil
 	}
 	namespaces := make(map[zapcore.Field][]zapcore.Field)
 	if ctxValue != nil {
-		ctxNamespaces, ok := ctxValue.(map[zapcore.Field][]zapcore.Field)
+		ctxNamespaces := ctxValue
 		if ok {
 			for k, v := range ctxNamespaces {
 				namespaces[k] = v
@@ -90,17 +115,19 @@ func extractNamespaces(ctx *gin.Context) map[zapcore.Field][]zapcore.Field {
 	return namespaces
 }
 
-func extractGlobalfields(ctx *gin.Context) []zapcore.Field {
-	ctxValue, ok := ctx.Get(globalFieldKey)
+func extractGlobalfields(ctx context.Context) []zapcore.Field {
+	v := ctx.Value(globalFieldKey)
+	if v == nil {
+		return nil
+	}
+
+	ctxValue, ok := v.([]zapcore.Field)
 	if !ok {
 		return nil
 	}
 	globalFields := make([]zap.Field, 0)
 	if ctxValue != nil {
-		value, ok := ctxValue.([]zap.Field)
-		if ok {
-			globalFields = value
-		}
+		globalFields = ctxValue
 	}
 	return globalFields
 }

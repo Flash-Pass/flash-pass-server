@@ -26,8 +26,8 @@ func init() {
 	handler = api.NewHandler(
 		api.WithRoot(gin.Default()),
 		api.WithMiddleware(
-			middlewares.PreRequest(),
 			middlewares.CORS(variables.BASE.InDev),
+			middlewares.PreRequest(),
 			middlewares.GinLogger(),
 			middlewares.GinRecovery(true),
 			middlewares.Authorize(),

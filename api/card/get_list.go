@@ -1,6 +1,7 @@
 package card
 
 import (
+	"github.com/Flash-Pass/flash-pass-server/internal/ctxlog"
 	"net/http"
 
 	"github.com/Flash-Pass/flash-pass-server/internal/fpstatus"
@@ -13,17 +14,19 @@ type GetCardListRequest struct {
 	UserId int64  `json:"id"`
 }
 
-func (h *Handler) GetCardListController(ctx *gin.Context) {
+func (h *Handler) GetCardListController(c *gin.Context) {
+	ctx, _ := ctxlog.Export(c)
+
 	params := &GetCardListRequest{}
-	if err := ctx.Bind(params); err != nil {
-		res.RespondWithError(ctx, http.StatusBadRequest, fpstatus.ParseParametersError, nil)
+	if err := c.Bind(params); err != nil {
+		res.RespondWithError(c, http.StatusBadRequest, fpstatus.ParseParametersError, nil)
 		return
 	}
 
 	if params.UserId == 0 {
-		userId, ok := ctx.Get("userId")
+		userId, ok := c.Get("userId")
 		if !ok {
-			res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage("parse token error"), nil)
+			res.RespondWithError(c, http.StatusInternalServerError, fpstatus.SystemError.WithMessage("parse token error"), nil)
 			return
 		}
 		params.UserId = userId.(int64)
@@ -31,9 +34,9 @@ func (h *Handler) GetCardListController(ctx *gin.Context) {
 
 	cards, err := h.service.GetCardList(ctx, params.Search, params.UserId)
 	if err != nil {
-		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
+		res.RespondWithError(c, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return
 	}
 
-	res.RespondSuccess(ctx, cards)
+	res.RespondSuccess(c, cards)
 }

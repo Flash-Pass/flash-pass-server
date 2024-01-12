@@ -1,9 +1,9 @@
 package card
 
 import (
+	"context"
 	"errors"
 
-	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
@@ -20,13 +20,12 @@ type Repository struct {
 
 //go:generate mockgen -source=repository.go -destination=./mocks/repository_mock.go -package CardRepositoryMocks
 type IRepository interface {
-	Create(ctx *gin.Context, card *model.Card) error
-	CreateCardAndAddToBook(ctx *gin.Context, card *model.Card, bookId int64) error
-	GetById(ctx *gin.Context, cardId int64) (*model.Card, error)
-	Update(ctx *gin.Context, cardId int64, question, answer string) (*model.Card, error)
-	Delete(ctx *gin.Context, cardId, userId int64) error
-	GetList(ctx *gin.Context, search string, userId int64) ([]*model.Card, error)
-	GetListByIds(ctx *gin.Context, cardIds []int64) ([]*model.Card, error)
+	Create(ctx context.Context, card *model.Card) error
+	GetById(ctx context.Context, cardId int64) (*model.Card, error)
+	Update(ctx context.Context, cardId int64, question, answer string) (*model.Card, error)
+	Delete(ctx context.Context, cardId, userId int64) error
+	GetList(ctx context.Context, search string, userId int64) ([]*model.Card, error)
+	GetListByIds(ctx context.Context, cardIds []int64) ([]*model.Card, error)
 }
 
 //go:generate mockgen -source=repository.go -destination=./mocks/repository_mock.go -package CardRepositoryMocks
@@ -41,8 +40,8 @@ func NewRepository(db *gorm.DB) *Repository {
 	}
 }
 
-func (r *Repository) Create(ctx *gin.Context, card *model.Card) error {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) Create(ctx context.Context, card *model.Card) error {
+	logger := ctxlog.Extract(ctx)
 
 	if err := r.card.Create(card); err != nil {
 		logger.Error("create card defeat", zap.Error(err), zap.Any("card", card))
@@ -52,8 +51,8 @@ func (r *Repository) Create(ctx *gin.Context, card *model.Card) error {
 	return nil
 }
 
-func (r *Repository) CreateCardAndAddToBook(ctx *gin.Context, card *model.Card, bookId int64) error {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) CreateCardAndAddToBook(ctx context.Context, card *model.Card, bookId int64) error {
+	logger := ctxlog.Extract(ctx)
 
 	tx := r.query.Begin()
 	defer func() {
@@ -79,8 +78,8 @@ func (r *Repository) CreateCardAndAddToBook(ctx *gin.Context, card *model.Card, 
 	return tx.Commit()
 }
 
-func (r *Repository) GetById(ctx *gin.Context, cardId int64) (*model.Card, error) {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) GetById(ctx context.Context, cardId int64) (*model.Card, error) {
+	logger := ctxlog.Extract(ctx)
 
 	card, err := r.card.WithContext(ctx).Where(query.Card.Id.Eq(cardId)).First()
 	if err != nil {
@@ -91,8 +90,8 @@ func (r *Repository) GetById(ctx *gin.Context, cardId int64) (*model.Card, error
 	return card, nil
 }
 
-func (r *Repository) Update(ctx *gin.Context, cardId int64, question, answer string) (*model.Card, error) {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) Update(ctx context.Context, cardId int64, question, answer string) (*model.Card, error) {
+	logger := ctxlog.Extract(ctx)
 
 	_, err := r.card.WithContext(ctx).Where(query.Card.Id.Eq(cardId)).Updates(model.Card{
 		Question: question,
@@ -107,8 +106,8 @@ func (r *Repository) Update(ctx *gin.Context, cardId int64, question, answer str
 	return r.GetById(ctx, cardId)
 }
 
-func (r *Repository) Delete(ctx *gin.Context, cardId, userId int64) error {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) Delete(ctx context.Context, cardId, userId int64) error {
+	logger := ctxlog.Extract(ctx)
 
 	updateInfo, err := r.card.WithContext(ctx).Where(
 		query.Card.Id.Eq(cardId),
@@ -127,8 +126,11 @@ func (r *Repository) Delete(ctx *gin.Context, cardId, userId int64) error {
 	return nil
 }
 
-func (r *Repository) GetList(ctx *gin.Context, search string, userId int64) ([]*model.Card, error) {
-	logger := ctxlog.GetLogger(ctx)
+// GetList use search and userId to get a card list.
+// If searched string in question or answer in a card, it will be added to the result list.
+// If a card matched by the given user id, it also will be added to the result list.
+func (r *Repository) GetList(ctx context.Context, search string, userId int64) ([]*model.Card, error) {
+	logger := ctxlog.Extract(ctx)
 
 	list, err := r.card.Where(
 		query.Card.CreatedBy.Eq(userId),
@@ -145,8 +147,8 @@ func (r *Repository) GetList(ctx *gin.Context, search string, userId int64) ([]*
 	return list, nil
 }
 
-func (r *Repository) GetListByIds(ctx *gin.Context, cardIds []int64) ([]*model.Card, error) {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) GetListByIds(ctx context.Context, cardIds []int64) ([]*model.Card, error) {
+	logger := ctxlog.Extract(ctx)
 
 	list, err := r.card.WithContext(ctx).Where(query.Card.Id.In(cardIds...)).Find()
 	if err != nil {

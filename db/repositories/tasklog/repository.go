@@ -1,10 +1,10 @@
 package tasklog
 
 import (
+	"context"
 	"github.com/Flash-Pass/flash-pass-server/db/model"
 	"github.com/Flash-Pass/flash-pass-server/db/query"
 	"github.com/Flash-Pass/flash-pass-server/internal/ctxlog"
-	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -14,7 +14,7 @@ type Repository struct {
 }
 
 type IRepository interface {
-	AddLearnStatus(ctx *gin.Context, taskCardRecordId int64, status string) error
+	AddLearnStatus(ctx context.Context, taskCardRecordId int64, status string) error
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -23,8 +23,8 @@ func NewRepository(db *gorm.DB) *Repository {
 	}
 }
 
-func (r *Repository) AddLearnStatus(ctx *gin.Context, taskCardRecordId int64, status string) error {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) AddLearnStatus(ctx context.Context, taskCardRecordId int64, status string) error {
+	logger := ctxlog.Extract(ctx)
 
 	taskLog := &model.TaskLog{
 		TaskCardRecordId: taskCardRecordId,

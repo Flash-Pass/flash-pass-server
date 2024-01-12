@@ -1,6 +1,7 @@
 package user
 
 import (
+	"github.com/Flash-Pass/flash-pass-server/internal/ctxlog"
 	"net/http"
 
 	"github.com/Flash-Pass/flash-pass-server/internal/constants"
@@ -16,6 +17,8 @@ type getInfoRequest struct {
 }
 
 func (h *Handler) getInfo(c *gin.Context) {
+	ctx, _ := ctxlog.Export(c)
+
 	userId, ok := c.Get(constants.CtxUserIdKey)
 	if !ok {
 		res.RespondWithError(c, http.StatusInternalServerError, fpstatus.SystemError.WithMessage("user id not found"), nil)
@@ -27,7 +30,7 @@ func (h *Handler) getInfo(c *gin.Context) {
 		return
 	}
 
-	user, err := h.service.GetUser(c, params.openId, params.mobile, userId.(int64))
+	user, err := h.service.GetUser(ctx, params.openId, params.mobile, userId.(int64))
 	if err != nil {
 		res.RespondWithError(c, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return

@@ -1,11 +1,12 @@
 package bookcard
 
 import (
-	"github.com/Flash-Pass/flash-pass-server/db/query"
-	"github.com/Flash-Pass/flash-pass-server/internal/ctxlog"
-	"github.com/gin-gonic/gin"
+	"context"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+
+	"github.com/Flash-Pass/flash-pass-server/db/query"
+	"github.com/Flash-Pass/flash-pass-server/internal/ctxlog"
 )
 
 type Repository struct {
@@ -13,7 +14,7 @@ type Repository struct {
 }
 
 type IRepository interface {
-	CountByBookId(ctx *gin.Context, bookId int64) (int64, error)
+	CountByBookId(ctx context.Context, bookId int64) (int64, error)
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -22,8 +23,8 @@ func NewRepository(db *gorm.DB) *Repository {
 	}
 }
 
-func (r *Repository) CountByBookId(ctx *gin.Context, bookId int64) (int64, error) {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) CountByBookId(ctx context.Context, bookId int64) (int64, error) {
+	logger := ctxlog.Extract(ctx)
 
 	count, err := r.bookCard.WithContext(ctx).Where(query.BookCard.BookId.Eq(bookId)).Count()
 	if err != nil {

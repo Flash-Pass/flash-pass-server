@@ -1,6 +1,8 @@
 package middlewares
 
 import (
+	"context"
+	"github.com/Flash-Pass/flash-pass-server/internal/constants"
 	"time"
 
 	"github.com/Flash-Pass/flash-pass-server/internal/ctxlog"
@@ -13,10 +15,14 @@ func GinLogger() gin.HandlerFunc {
 		start := time.Now()
 		path := c.Request.URL.Path
 		query := c.Request.URL.RawQuery
+		ctx := context.Background()
+		ctx = ctxlog.WithLogger(ctx)
+		c.Set(constants.CtxKey, ctx)
 		c.Next()
 
 		cost := time.Since(start)
-		logger := ctxlog.GetLogger(c)
+
+		logger := ctxlog.Extract(ctx)
 		logger.Info(path,
 			zap.Int("status", c.Writer.Status()),
 			zap.String("method", c.Request.Method),

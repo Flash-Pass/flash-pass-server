@@ -1,7 +1,9 @@
 package user
 
 import (
-	"github.com/gin-gonic/gin"
+	"context"
+	"github.com/Flash-Pass/flash-pass-server/db"
+
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
@@ -19,12 +21,12 @@ type Repository struct {
 }
 
 type IRepository interface {
-	Create(ctx *gin.Context, mobile, password string) (*model.User, error)
-	CheckPassword(ctx *gin.Context, mobile, password string) (userId int64, ok bool)
-	GetUserById(ctx *gin.Context, userId int64) (*model.User, error)
-	GetUserByOpenId(ctx *gin.Context, openId string) (*model.User, error)
-	GetUserByMobile(ctx *gin.Context, mobile string) (*model.User, error)
-	Update(ctx *gin.Context, user *model.User) (*model.User, error)
+	Create(ctx context.Context, mobile, password string) (*model.User, error)
+	CheckPassword(ctx context.Context, mobile, password string) (userId int64, ok bool)
+	GetUserById(ctx context.Context, userId int64) (*model.User, error)
+	GetUserByOpenId(ctx context.Context, openId string) (*model.User, error)
+	GetUserByMobile(ctx context.Context, mobile string) (*model.User, error)
+	Update(ctx context.Context, user *model.User) (*model.User, error)
 }
 
 type generator interface {
@@ -44,8 +46,9 @@ func NewRepository(db *gorm.DB, g generator, e encryptHandle, s snowflake.IHandl
 	}
 }
 
-func (r *Repository) Create(ctx *gin.Context, mobile, password string) (*model.User, error) {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) Create(ctx context.Context, mobile, password string) (*model.User, error) {
+	tx := db.Tx(ctx)
+	logger := ctxlog.Extract(ctx)
 
 	salt, err := r.generator.GetSalt()
 	if err != nil {
@@ -68,7 +71,7 @@ func (r *Repository) Create(ctx *gin.Context, mobile, password string) (*model.U
 		Avatar:   "",
 	}
 
-	if err := r.user.Create(user); err != nil {
+	if err := tx.User.Create(user); err != nil {
 		logger.Error("create user defeat", zap.Error(err), zap.Any("user", user))
 		return nil, err
 	}
@@ -76,10 +79,11 @@ func (r *Repository) Create(ctx *gin.Context, mobile, password string) (*model.U
 	return user, nil
 }
 
-func (r *Repository) CheckPassword(ctx *gin.Context, mobile, password string) (userId int64, ok bool) {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) CheckPassword(ctx context.Context, mobile, password string) (userId int64, ok bool) {
+	tx := db.Tx(ctx)
+	logger := ctxlog.Extract(ctx)
 
-	user, err := r.user.WithContext(ctx).Where(query.User.Username.Eq(mobile)).First()
+	user, err := tx.User.WithContext(ctx).Where(query.User.Username.Eq(mobile)).First()
 	if err != nil {
 		logger.Error("user not found", zap.Error(err), zap.String("mobile", mobile))
 		return 0, false
@@ -93,10 +97,11 @@ func (r *Repository) CheckPassword(ctx *gin.Context, mobile, password string) (u
 	return user.Id, true
 }
 
-func (r *Repository) GetUserByOpenId(ctx *gin.Context, openId string) (*model.User, error) {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) GetUserByOpenId(ctx context.Context, openId string) (*model.User, error) {
+	tx := db.Tx(ctx)
+	logger := ctxlog.Extract(ctx)
 
-	user, err := r.user.WithContext(ctx).Where(query.User.OpenId.Eq(openId)).First()
+	user, err := tx.User.WithContext(ctx).Where(query.User.OpenId.Eq(openId)).First()
 	if err != nil {
 		logger.Error("user not found", zap.Error(err), zap.String("open id", openId))
 		return nil, err
@@ -105,10 +110,11 @@ func (r *Repository) GetUserByOpenId(ctx *gin.Context, openId string) (*model.Us
 	return user, nil
 }
 
-func (r *Repository) GetUserById(ctx *gin.Context, userId int64) (*model.User, error) {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) GetUserById(ctx context.Context, userId int64) (*model.User, error) {
+	tx := db.Tx(ctx)
+	logger := ctxlog.Extract(ctx)
 
-	user, err := r.user.WithContext(ctx).Where(query.User.Id.Eq(userId)).First()
+	user, err := tx.User.WithContext(ctx).Where(query.User.Id.Eq(userId)).First()
 	if err != nil {
 		logger.Error("user not found", zap.Error(err), zap.Int64("user id", userId))
 		return nil, err
@@ -117,10 +123,11 @@ func (r *Repository) GetUserById(ctx *gin.Context, userId int64) (*model.User, e
 	return user, nil
 }
 
-func (r *Repository) GetUserByMobile(ctx *gin.Context, mobile string) (*model.User, error) {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) GetUserByMobile(ctx context.Context, mobile string) (*model.User, error) {
+	tx := db.Tx(ctx)
+	logger := ctxlog.Extract(ctx)
 
-	user, err := r.user.WithContext(ctx).Where(query.User.Mobile.Eq(mobile)).First()
+	user, err := tx.User.WithContext(ctx).Where(query.User.Mobile.Eq(mobile)).First()
 	if err != nil {
 		logger.Error("user not found", zap.Error(err), zap.String("mobile", mobile))
 		return nil, err
@@ -129,17 +136,18 @@ func (r *Repository) GetUserByMobile(ctx *gin.Context, mobile string) (*model.Us
 	return user, nil
 }
 
-func (r *Repository) Update(ctx *gin.Context, user *model.User) (*model.User, error) {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) Update(ctx context.Context, user *model.User) (*model.User, error) {
+	tx := db.Tx(ctx)
+	logger := ctxlog.Extract(ctx)
 
-	if _, err := r.user.Where(query.User.Id.Eq(user.Id)).Update(
+	if _, err := tx.User.Where(query.User.Id.Eq(user.Id)).Update(
 		query.User.Nickname, user.Nickname,
 	); err != nil {
 		logger.Error("update user defeat", zap.Error(err), zap.Any("user", user))
 		return nil, err
 	}
 
-	user, _ = r.user.Where(query.User.Id.Eq(user.Id)).First()
+	user, _ = tx.User.Where(query.User.Id.Eq(user.Id)).First()
 	return user, nil
 }
 

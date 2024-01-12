@@ -1,6 +1,7 @@
 package plan
 
 import (
+	"context"
 	"github.com/Flash-Pass/flash-pass-server/db/model"
 	"github.com/gin-gonic/gin"
 )
@@ -10,20 +11,20 @@ type Handler struct {
 }
 
 type IHandler interface {
-	Create(ctx *gin.Context)
-	Get(ctx *gin.Context)
-	Update(ctx *gin.Context)
-	Delete(ctx *gin.Context)
-	GetList(ctx *gin.Context)
+	Create(c *gin.Context)
+	Get(c *gin.Context)
+	Update(c *gin.Context)
+	Delete(c *gin.Context)
+	GetList(c *gin.Context)
 }
 
 type Service interface {
-	Create(ctx *gin.Context, plan *model.Plan) (*model.Plan, error)
-	IsPlanBelongToUser(ctx *gin.Context, planId, userId int64) (bool, error)
-	Get(ctx *gin.Context, planId int64) (*model.Plan, error)
-	Update(ctx *gin.Context, plan *model.Plan) (*model.Plan, error)
-	Delete(ctx *gin.Context, planId int64) error
-	GetList(ctx *gin.Context, userId int64) ([]*model.Plan, error)
+	Create(ctx context.Context, plan *model.Plan) (*model.Plan, error)
+	IsPlanBelongToUser(ctx context.Context, planId, userId int64) (bool, error)
+	Get(ctx context.Context, planId int64) (*model.Plan, error)
+	Update(ctx context.Context, plan *model.Plan) (*model.Plan, error)
+	Delete(ctx context.Context, planId int64) error
+	GetList(ctx context.Context, userId int64) ([]*model.Plan, error)
 }
 
 func NewHandler(service Service) *Handler {

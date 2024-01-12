@@ -43,7 +43,7 @@ func (m *MockIRepository) EXPECT() *MockIRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockIRepository) Create(ctx *gin.Context, card *model.Card) error {
+func (m *MockIRepository) Create(c *gin.Context, card *model.Card) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", ctx, card)
 	ret0, _ := ret[0].(error)
@@ -57,7 +57,7 @@ func (mr *MockIRepositoryMockRecorder) Create(ctx, card interface{}) *gomock.Cal
 }
 
 // Delete mocks base method.
-func (m *MockIRepository) Delete(ctx *gin.Context, cardId, userId int64) error {
+func (m *MockIRepository) Delete(c *gin.Context, cardId, userId int64) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Delete", ctx, cardId, userId)
 	ret0, _ := ret[0].(error)
@@ -71,7 +71,7 @@ func (mr *MockIRepositoryMockRecorder) Delete(ctx, cardId, userId interface{}) *
 }
 
 // GetById mocks base method.
-func (m *MockIRepository) GetById(ctx *gin.Context, cardId int64) (*model.Card, error) {
+func (m *MockIRepository) GetById(c *gin.Context, cardId int64) (*model.Card, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetById", ctx, cardId)
 	ret0, _ := ret[0].(*model.Card)
@@ -86,7 +86,7 @@ func (mr *MockIRepositoryMockRecorder) GetById(ctx, cardId interface{}) *gomock.
 }
 
 // GetList mocks base method.
-func (m *MockIRepository) GetList(ctx *gin.Context, search string, userId int64) ([]*model.Card, error) {
+func (m *MockIRepository) GetList(c *gin.Context, search string, userId int64) ([]*model.Card, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetList", ctx, search, userId)
 	ret0, _ := ret[0].([]*model.Card)
@@ -101,7 +101,7 @@ func (mr *MockIRepositoryMockRecorder) GetList(ctx, search, userId interface{}) 
 }
 
 // Update mocks base method.
-func (m *MockIRepository) Update(ctx *gin.Context, cardId int64, question, answer string) (*model.Card, error) {
+func (m *MockIRepository) Update(c *gin.Context, cardId int64, question, answer string) (*model.Card, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", ctx, cardId, question, answer)
 	ret0, _ := ret[0].(*model.Card)

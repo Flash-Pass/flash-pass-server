@@ -1,9 +1,10 @@
 package res
 
 import (
+	"net/http"
+
 	"github.com/Flash-Pass/flash-pass-server/internal/fpstatus"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type BaseResponse struct {
@@ -12,7 +13,7 @@ type BaseResponse struct {
 	Data    any    `json:"data"`
 }
 
-func RespondSuccess(ctx *gin.Context, data any) {
+func RespondSuccess(c *gin.Context, data any) {
 	response := &BaseResponse{
 		Code:    fpstatus.Success.ErrCode,
 		Message: fpstatus.Success.ErrMsg,
@@ -22,10 +23,10 @@ func RespondSuccess(ctx *gin.Context, data any) {
 		response.Data = data
 	}
 
-	ctx.JSON(http.StatusOK, response)
+	c.JSON(http.StatusOK, response)
 }
 
-func RespondWithError(ctx *gin.Context, statusCode int, err *fpstatus.ErrNo, data any) {
+func RespondWithError(c *gin.Context, statusCode int, err *fpstatus.ErrNo, data any) {
 	response := &BaseResponse{
 		Code:    err.ErrCode,
 		Message: err.ErrMsg,
@@ -35,5 +36,5 @@ func RespondWithError(ctx *gin.Context, statusCode int, err *fpstatus.ErrNo, dat
 		response.Data = data
 	}
 
-	ctx.AbortWithStatusJSON(statusCode, response)
+	c.AbortWithStatusJSON(statusCode, response)
 }

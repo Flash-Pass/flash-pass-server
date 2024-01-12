@@ -1,6 +1,7 @@
 package constants
 
 const (
+	CtxKey               = "context"
 	CtxUserIdKey         = "userId"
 	CtxOpenIdKey         = "openId"
 	CtxSessionKeyKey     = "sessionKey"

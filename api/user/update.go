@@ -1,6 +1,7 @@
 package user
 
 import (
+	"github.com/Flash-Pass/flash-pass-server/internal/ctxlog"
 	"net/http"
 
 	"github.com/Flash-Pass/flash-pass-server/db/model"
@@ -15,16 +16,18 @@ type UpdateUserRequest struct {
 	Nickname string `json:"nickname" binding:"required"`
 }
 
-func (h *Handler) update(ctx *gin.Context) {
-	userId, ok := ctx.Get(constants.CtxUserIdKey)
+func (h *Handler) update(c *gin.Context) {
+	ctx, _ := ctxlog.Export(c)
+
+	userId, ok := c.Get(constants.CtxUserIdKey)
 	if !ok {
-		res.RespondWithError(ctx, http.StatusUnauthorized, fpstatus.ParseTokenError, nil)
+		res.RespondWithError(c, http.StatusUnauthorized, fpstatus.ParseTokenError, nil)
 		return
 	}
 
 	var params UpdateUserRequest
-	if err := ctx.ShouldBind(&params); err != nil {
-		paramValidator.RespondWithParamError(ctx, err)
+	if err := c.ShouldBind(&params); err != nil {
+		paramValidator.RespondWithParamError(c, err)
 		return
 	}
 
@@ -35,9 +38,9 @@ func (h *Handler) update(ctx *gin.Context) {
 		Nickname: params.Nickname,
 	})
 	if err != nil {
-		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
+		res.RespondWithError(c, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return
 	}
 
-	res.RespondSuccess(ctx, user)
+	res.RespondSuccess(c, user)
 }

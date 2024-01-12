@@ -1,9 +1,9 @@
 package ctxlog
 
 import (
+	"context"
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest/observer"
@@ -12,13 +12,13 @@ import (
 func TestExtractLogger(t *testing.T) {
 	cases := []struct {
 		description  string
-		given        *gin.Context
+		given        context.Context
 		expected     []zap.Field
 		loggerExists bool
 	}{
 		{
 			description: "empty context",
-			given:       &gin.Context{},
+			given:       context.Background(),
 			expected:    []zap.Field{zap.String("logger", "default")},
 		},
 	}
@@ -30,29 +30,28 @@ func TestExtractLogger(t *testing.T) {
 			if item.loggerExists {
 				coreLogger, observedLogs := observer.New(zap.InfoLevel)
 				existingLogger := zap.New(coreLogger)
-				ctx.Set(loggerKey, existingLogger)
+				ctx = context.WithValue(ctx, loggerKey{}, existingLogger)
 
-				extractLogger := GetLogger(ctx)
+				extractLogger := Extract(ctx)
 				extractLogger.Info("doing log")
 				allLogs := observedLogs.All()
 				require.ElementsMatch(t, item.expected, allLogs[0].Context)
 			}
 
 			expectedLogger := zap.NewNop().With(item.expected...)
-			require.Equal(t, expectedLogger, GetLogger(ctx))
+			require.Equal(t, expectedLogger, Extract(ctx))
 		})
 	}
 }
 
 func TestAddLoggerToContext(t *testing.T) {
 	given := DefaultLogger
-	ctx := &gin.Context{}
-	WithLogger(ctx)
+	ctx := context.Background()
+	ctx = WithLogger(ctx)
 
-	value, ok := ctx.Get(Logger)
-	require.True(t, ok)
-
-	logger, ok := value.(*zap.Logger)
+	v := ctx.Value(loggerKey{})
+	require.NotNil(t, v)
+	logger, ok := v.(*zap.Logger)
 	require.True(t, ok)
 	require.Equal(t, given, logger)
 }
@@ -65,8 +64,8 @@ func TestAddFields_DoesNotModifyOriginalNamespaces(t *testing.T) {
 		},
 	}
 
-	ctx := &gin.Context{}
-	ctx.Set(namespaceKey, originalFields)
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, namespaceKey, originalFields)
 	ctx = AddFields(ctx, namespace, zap.String("new field", "new value"))
 	require.Equal(t, map[zap.Field][]zap.Field{
 		namespace: {
@@ -74,7 +73,7 @@ func TestAddFields_DoesNotModifyOriginalNamespaces(t *testing.T) {
 		},
 	}, originalFields)
 
-	namespaces, ok := ctx.Get(namespaceKey)
+	namespaces, ok := ctx.Value(namespaceKey).(map[zap.Field][]zap.Field)
 	require.True(t, ok)
 	require.Equal(t, map[zap.Field][]zap.Field{
 		namespace: {

@@ -1,6 +1,8 @@
 package paramValidator
 
 import (
+	"net/http"
+
 	"github.com/Flash-Pass/flash-pass-server/internal/res"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -8,7 +10,6 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	en_translations "github.com/go-playground/validator/v10/translations/en"
-	"net/http"
 )
 
 var t ut.Translator
@@ -45,13 +46,13 @@ func T(err error) (result string) {
 	return result
 }
 
-func RespondWithParamError(ctx *gin.Context, err error) {
+func RespondWithParamError(c *gin.Context, err error) {
 	response := &res.BaseResponse{
 		Code:    -1,
 		Message: T(err),
 	}
 
-	ctx.AbortWithStatusJSON(http.StatusInternalServerError, response)
+	c.AbortWithStatusJSON(http.StatusInternalServerError, response)
 }
 
 func registerValidator(v *validator.Validate, t ut.Translator) {

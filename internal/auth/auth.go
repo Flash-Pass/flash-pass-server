@@ -1,12 +1,12 @@
 package auth
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
 	"github.com/Flash-Pass/flash-pass-server/internal/ctxlog"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
@@ -29,8 +29,8 @@ type UserClaim struct {
 	jwt.StandardClaims
 }
 
-func GenerateToken(c *gin.Context, claim *UserClaim) (string, error) {
-	logger := ctxlog.GetLogger(c)
+func GenerateToken(ctx context.Context, claim *UserClaim) (string, error) {
+	logger := ctxlog.Extract(ctx)
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claim).SignedString([]byte(secret))
 	if err != nil {
 		logger.Error("generate token defeat", zap.Error(err), zap.Any("claim", claim))
@@ -40,8 +40,8 @@ func GenerateToken(c *gin.Context, claim *UserClaim) (string, error) {
 	return token, nil
 }
 
-func ParseToken(c *gin.Context, tokenString string) (*UserClaim, error) {
-	logger := ctxlog.GetLogger(c)
+func ParseToken(ctx context.Context, tokenString string) (*UserClaim, error) {
+	logger := ctxlog.Extract(ctx)
 	token, err := jwt.ParseWithClaims(
 		tokenString,
 		&UserClaim{},
@@ -63,10 +63,10 @@ func ParseToken(c *gin.Context, tokenString string) (*UserClaim, error) {
 	return claims, nil
 }
 
-func ParseInfoWithToken(c *gin.Context, tokenString string) (map[string]interface{}, error) {
+func ParseInfoWithToken(ctx context.Context, tokenString string) (map[string]interface{}, error) {
 	result := make(map[string]interface{})
 
-	claim, err := ParseToken(c, tokenString)
+	claim, err := ParseToken(ctx, tokenString)
 	if err != nil {
 		return nil, err
 	}

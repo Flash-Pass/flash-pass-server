@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"github.com/Flash-Pass/flash-pass-server/db/model"
 	"github.com/Flash-Pass/flash-pass-server/internal/snowflake"
 	"github.com/gin-gonic/gin"
@@ -21,11 +22,11 @@ type IHandler interface {
 }
 
 type Service interface {
-	Login(ctx *gin.Context, mobile, password string) (token string, err error)
-	LoginViaWeChat(ctx *gin.Context, code string) (token string, err error)
-	Register(ctx *gin.Context, mobile, password string) (token string, err error)
-	Update(ctx *gin.Context, user *model.User) (*model.User, error)
-	GetUser(ctx *gin.Context, openId, mobile string, userId int64) (*model.User, error)
+	Login(ctx context.Context, mobile, password string) (token string, err error)
+	LoginViaWeChat(ctx context.Context, code string) (token string, err error)
+	Register(ctx context.Context, mobile, password string) (token string, err error)
+	Update(ctx context.Context, user *model.User) (*model.User, error)
+	GetUser(ctx context.Context, openId, mobile string, userId int64) (*model.User, error)
 }
 
 func NewHandler(service Service) *Handler {

@@ -1,6 +1,8 @@
 package plan
 
 import (
+	"context"
+	"github.com/Flash-Pass/flash-pass-server/internal/ctxlog"
 	"net/http"
 
 	"github.com/Flash-Pass/flash-pass-server/db/model"
@@ -24,26 +26,28 @@ type updatePlanRequest struct {
 	ReviewStrategy string `json:"review_strategy" binding:"required"`
 }
 
-func (h *Handler) Update(ctx *gin.Context) {
-	userId, ok := ctx.Get(constants.CtxUserIdKey)
+func (h *Handler) Update(c *gin.Context) {
+	ctx, _ := ctxlog.Export(c)
+
+	userId, ok := c.Get(constants.CtxUserIdKey)
 	if !ok {
-		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.ParseTokenError, nil)
+		res.RespondWithError(c, http.StatusInternalServerError, fpstatus.ParseTokenError, nil)
 		return
 	}
 
 	param := &updatePlanRequest{}
-	if err := ctx.ShouldBindJSON(param); err != nil {
-		res.RespondWithError(ctx, http.StatusBadRequest, fpstatus.SystemError.WithMessage(err.Error()), nil)
+	if err := c.ShouldBindJSON(param); err != nil {
+		res.RespondWithError(c, http.StatusBadRequest, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return
 	}
 
 	ok, err := h.service.IsPlanBelongToUser(ctx, param.PlanId, userId.(int64))
 	if !ok {
-		res.RespondWithError(ctx, http.StatusForbidden, fpstatus.SystemError.WithMessage(err.Error()), nil)
+		res.RespondWithError(c, http.StatusForbidden, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return
 	}
 
-	plan, err := h.service.Update(ctx, &model.Plan{
+	plan, err := h.service.Update(context.Background(), &model.Plan{
 		Base: model.Base{
 			Id: param.PlanId,
 		},
@@ -59,9 +63,9 @@ func (h *Handler) Update(ctx *gin.Context) {
 		ReviewStrategy: param.ReviewStrategy,
 	})
 	if err != nil {
-		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
+		res.RespondWithError(c, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return
 	}
 
-	res.RespondSuccess(ctx, plan)
+	res.RespondSuccess(c, plan)
 }

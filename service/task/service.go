@@ -1,12 +1,14 @@
 package task
 
 import (
+	"context"
+	"github.com/Flash-Pass/flash-pass-server/db"
+	"time"
+
 	"github.com/Flash-Pass/flash-pass-server/db/model"
 	"github.com/Flash-Pass/flash-pass-server/internal/ctxlog"
 	"github.com/Flash-Pass/flash-pass-server/internal/utils/timeutils"
-	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"time"
 )
 
 type Service struct {
@@ -36,85 +38,81 @@ func NewService(cardRepo ICardRepository, taskRepo ITaskRepository, taskCardReco
 }
 
 type IService interface {
-	CreateTask(ctx *gin.Context, planId, bookId, userId int64, name string) (*model.Task, error)
-	Active(ctx *gin.Context, taskId int64, isActive bool) (*model.Task, error)
-	UpdateTaskName(ctx *gin.Context, taskId int64, name string) (*model.Task, error)
-	DeleteTask(ctx *gin.Context, taskId int64) error
-	GetTaskList(ctx *gin.Context, userId int64) ([]*model.Task, error)
-	GetTaskListByIsActive(ctx *gin.Context, userId int64, isActive bool) ([]*model.Task, error)
-	Feed(ctx *gin.Context, userId, taskId int64) ([]*model.TaskCardRecord, error)
-	AddLearnStatus(ctx *gin.Context, taskCardRecordId int64, status string) error
+	CreateTask(ctx context.Context, planId, bookId, userId int64, name string) (*model.Task, error)
+	Active(ctx context.Context, taskId int64, isActive bool) (*model.Task, error)
+	DeleteTask(ctx context.Context, taskId int64) error
+	GetTaskList(ctx context.Context, userId int64) ([]*model.Task, error)
+	GetTaskListByIsActive(ctx context.Context, userId int64, isActive bool) ([]*model.Task, error)
+	Feed(ctx context.Context, userId, taskId int64) ([]*model.TaskCardRecord, error)
+	AddLearnStatus(ctx context.Context, taskCardRecordId int64, status string) error
+	Update(ctx context.Context, taskId int64, taskName string, isActive bool) (*model.Task, error)
 }
 
 type ICardRepository interface {
-	GetById(ctx *gin.Context, cardId int64) (*model.Card, error)
-	GetListByIds(ctx *gin.Context, cardIds []int64) ([]*model.Card, error)
+	GetById(ctx context.Context, cardId int64) (*model.Card, error)
+	GetListByIds(ctx context.Context, cardIds []int64) ([]*model.Card, error)
 }
 
 type IBookRepository interface {
-	GetById(ctx *gin.Context, bookId int64) (*model.Book, error)
+	GetById(ctx context.Context, bookId int64) (*model.Book, error)
 }
 
 type IBookCardRepository interface {
-	CountByBookId(ctx *gin.Context, bookId int64) (int64, error)
+	CountByBookId(ctx context.Context, bookId int64) (int64, error)
 }
 
 type IPlanRepository interface {
-	GetPlanByTaskId(ctx *gin.Context, taskId int64) (*model.Plan, error)
+	GetPlanByTaskId(ctx context.Context, taskId int64) (*model.Plan, error)
 }
 
 type ITaskRepository interface {
-	Create(ctx *gin.Context, planId, bookId, userId int64, name string) (*model.Task, error)
-	GetById(ctx *gin.Context, taskId int64) (*model.Task, error)
-	Active(ctx *gin.Context, taskId int64, isActive bool) (*model.Task, error)
-	UpdateTaskName(ctx *gin.Context, taskId int64, name string) (*model.Task, error)
-	DeleteTask(ctx *gin.Context, taskId int64) error
-	GetTaskList(ctx *gin.Context, userId int64) ([]*model.Task, error)
-	GetTaskListByIsActive(ctx *gin.Context, userId int64, isActive bool) ([]*model.Task, error)
+	Create(ctx context.Context, planId, bookId, userId int64, name string) (*model.Task, error)
+	GetById(ctx context.Context, taskId int64) (*model.Task, error)
+	Active(ctx context.Context, taskId int64, isActive bool) (*model.Task, error)
+	UpdateTaskName(ctx context.Context, taskId int64, name string) (*model.Task, error)
+	DeleteTask(ctx context.Context, taskId int64) error
+	GetTaskList(ctx context.Context, userId int64) ([]*model.Task, error)
+	GetTaskListByIsActive(ctx context.Context, userId int64, isActive bool) ([]*model.Task, error)
 }
 
 type ITaskCardRecordRepository interface {
-	GetById(ctx *gin.Context, taskCardRecordId int64) (*model.TaskCardRecord, error)
-	Feed(ctx *gin.Context, userId int64) ([]*model.TaskCardRecord, error)
-	GetRecordByTimestamp(ctx *gin.Context, taskId, timestamp, groupNum, groupSize int64) ([]*model.TaskCardRecord, error)
-	CountRecordByTimestamp(ctx *gin.Context, taskId, timestamp int64) (int64, error)
-	Generate(ctx *gin.Context, taskId, userId, timestamp int64) error
+	GetById(ctx context.Context, taskCardRecordId int64) (*model.TaskCardRecord, error)
+	Feed(ctx context.Context, userId int64) ([]*model.TaskCardRecord, error)
+	GetRecordByTimestamp(ctx context.Context, taskId, timestamp, groupNum, groupSize int64) ([]*model.TaskCardRecord, error)
+	CountRecordByTimestamp(ctx context.Context, taskId, timestamp int64) (int64, error)
+	Generate(ctx context.Context, taskId, userId, timestamp int64) error
 }
 
 type ITaskLogRepository interface {
-	AddLearnStatus(ctx *gin.Context, taskCardRecordId int64, status string) error
+	AddLearnStatus(ctx context.Context, taskCardRecordId int64, status string) error
 }
 
 type ITaskInfoCache interface {
-	SetTaskInfo(ctx *gin.Context, taskId int64, task *model.Task) error
-	GetTaskInfo(ctx *gin.Context, taskId int64) (*model.Task, error)
-	SetLearnedGroup(ctx *gin.Context, userId, taskId, groupNum int64) error
-	GetLearnedGroup(ctx *gin.Context, userId, taskId int64) (int64, error)
-	SetReviewedGroup(ctx *gin.Context, userId, taskId, groupNum int64) error
-	GetReviewedGroup(ctx *gin.Context, userId, taskId int64) (int64, error)
+	SetTaskInfo(ctx context.Context, taskId int64, task *model.Task) error
+	GetTaskInfo(ctx context.Context, taskId int64) (*model.Task, error)
+	SetLearnedGroup(ctx context.Context, userId, taskId, groupNum int64) error
+	GetLearnedGroup(ctx context.Context, userId, taskId int64) (int64, error)
+	SetReviewedGroup(ctx context.Context, userId, taskId, groupNum int64) error
+	GetReviewedGroup(ctx context.Context, userId, taskId int64) (int64, error)
 }
 
-func (s *Service) CreateTask(ctx *gin.Context, planId, bookId, userId int64, name string) (*model.Task, error) {
+func (s *Service) CreateTask(ctx context.Context, planId, bookId, userId int64, name string) (*model.Task, error) {
 	return s.taskRepo.Create(ctx, planId, bookId, userId, name)
 }
 
-func (s *Service) Active(ctx *gin.Context, taskId int64, isActive bool) (*model.Task, error) {
+func (s *Service) Active(ctx context.Context, taskId int64, isActive bool) (*model.Task, error) {
 	return s.taskRepo.Active(ctx, taskId, isActive)
 }
 
-func (s *Service) UpdateTaskName(ctx *gin.Context, taskId int64, name string) (*model.Task, error) {
-	return s.taskRepo.UpdateTaskName(ctx, taskId, name)
-}
-
-func (s *Service) DeleteTask(ctx *gin.Context, taskId int64) error {
+func (s *Service) DeleteTask(ctx context.Context, taskId int64) error {
 	return s.taskRepo.DeleteTask(ctx, taskId)
 }
 
-func (s *Service) GetTaskList(ctx *gin.Context, userId int64) ([]*model.Task, error) {
+func (s *Service) GetTaskList(ctx context.Context, userId int64) ([]*model.Task, error) {
 	return s.taskRepo.GetTaskList(ctx, userId)
 }
 
-func (s *Service) GetTaskListByIsActive(ctx *gin.Context, userId int64, isActive bool) ([]*model.Task, error) {
+func (s *Service) GetTaskListByIsActive(ctx context.Context, userId int64, isActive bool) ([]*model.Task, error) {
 	return s.taskRepo.GetTaskListByIsActive(ctx, userId, isActive)
 }
 
@@ -125,8 +123,8 @@ func (s *Service) GetTaskListByIsActive(ctx *gin.Context, userId int64, isActive
 // 成全部的taskCardRecord; 若未生成全部的taskCardRecord，则调用生成taskCardRecord的方法
 // 4. 从taskCardRecord中根据taskId和当日日期、复习日期获取全部的记录，并标记学习性质（新学，复习）存入缓存（用户要学习卡片缓存）
 // 5. 从缓存中获取一组数据，传递给用户
-func (s *Service) Feed(ctx *gin.Context, userId, taskId int64) ([]*model.TaskCardRecord, error) {
-	logger := ctxlog.GetLogger(ctx)
+func (s *Service) Feed(ctx context.Context, userId, taskId int64) ([]*model.TaskCardRecord, error) {
+	logger := ctxlog.Extract(ctx)
 
 	var task *model.Task
 	task, err := s.taskInfoCache.GetTaskInfo(ctx, taskId)
@@ -188,8 +186,27 @@ func (s *Service) Feed(ctx *gin.Context, userId, taskId int64) ([]*model.TaskCar
 	return taskCardRecordList, nil
 }
 
-func (s *Service) AddLearnStatus(ctx *gin.Context, taskCardRecordId int64, status string) error {
+func (s *Service) AddLearnStatus(ctx context.Context, taskCardRecordId int64, status string) error {
 	return s.taskLogRepo.AddLearnStatus(ctx, taskCardRecordId, status)
+}
+
+func (s *Service) Update(ctx context.Context, taskId int64, taskName string, isActive bool) (task *model.Task, err error) {
+	ctx, persist := db.WithTXPersist(ctx)
+	defer func() {
+		persist(err)
+	}()
+
+	task, err = s.taskRepo.UpdateTaskName(ctx, taskId, taskName)
+	if err != nil {
+		return nil, err
+	}
+
+	task, err = s.taskRepo.Active(ctx, taskId, isActive)
+	if err != nil {
+		return nil, err
+	}
+
+	return task, nil
 }
 
 var _ IService = (*Service)(nil)

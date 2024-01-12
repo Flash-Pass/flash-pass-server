@@ -1,6 +1,7 @@
 package card
 
 import (
+	"github.com/Flash-Pass/flash-pass-server/internal/ctxlog"
 	"net/http"
 
 	"github.com/Flash-Pass/flash-pass-server/db/model"
@@ -16,16 +17,18 @@ type UpdateCardRequest struct {
 	Answer   string `json:"answer"`
 }
 
-func (h *Handler) UpdateCardController(ctx *gin.Context) {
-	userId, ok := ctx.Get("userId")
+func (h *Handler) UpdateCardController(c *gin.Context) {
+	ctx, _ := ctxlog.Export(c)
+
+	userId, ok := c.Get("userId")
 	if !ok {
-		res.RespondWithError(ctx, http.StatusUnauthorized, fpstatus.ParseTokenError, nil)
+		res.RespondWithError(c, http.StatusUnauthorized, fpstatus.ParseTokenError, nil)
 		return
 	}
 
 	params := &UpdateCardRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		paramValidator.RespondWithParamError(ctx, err)
+	if err := c.ShouldBind(params); err != nil {
+		paramValidator.RespondWithParamError(c, err)
 		return
 	}
 
@@ -33,9 +36,9 @@ func (h *Handler) UpdateCardController(ctx *gin.Context) {
 		params.Id, params.Question, params.Answer, userId.(int64),
 	))
 	if err != nil {
-		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
+		res.RespondWithError(c, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return
 	}
 
-	res.RespondSuccess(ctx, card)
+	res.RespondSuccess(c, card)
 }

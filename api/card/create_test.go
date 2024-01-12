@@ -1,14 +1,15 @@
 package card
 
 import (
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
 	CardHandlerMocks "github.com/Flash-Pass/flash-pass-server/api/card/mocks"
 	"github.com/Flash-Pass/flash-pass-server/internal/constants"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
-	"net/http"
-	"net/http/httptest"
-	"testing"
 )
 
 func TestCreate(t *testing.T) {
@@ -29,7 +30,7 @@ func TestCreate(t *testing.T) {
 
 	cases := []struct {
 		ctx      *gin.Context
-		ctxPre   func(ctx *gin.Context)
+		ctxPre   func(c *gin.Context)
 		check    func(recorder *httptest.ResponseRecorder)
 		recorder *httptest.ResponseRecorder
 		request  *http.Request
@@ -38,7 +39,7 @@ func TestCreate(t *testing.T) {
 	}{
 		{
 			name: "create with empty question",
-			ctxPre: func(ctx *gin.Context) {
+			ctxPre: func(c *gin.Context) {
 				ctx.Set(constants.CtxUserIdKey, 1)
 			},
 			check: func(recorder *httptest.ResponseRecorder) {
@@ -56,7 +57,7 @@ func TestCreate(t *testing.T) {
 			tt.ctxPre(tt.ctx)
 			tt.ctx.Request = tt.request
 			tt.ctx.Params = append(tt.ctx.Params, tt.param)
-			r.POST("/card/", func(ctx *gin.Context) {
+			r.POST("/card/", func(c *gin.Context) {
 				tt.ctx.Handler()(tt.ctx)
 			})
 			ctrl := gomock.NewController(t)
