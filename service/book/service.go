@@ -1,7 +1,7 @@
 package book
 
 import (
-	"github.com/gin-gonic/gin"
+	"context"
 
 	"github.com/Flash-Pass/flash-pass-server/db/model"
 	"github.com/Flash-Pass/flash-pass-server/db/repositories/book"
@@ -16,18 +16,18 @@ type Service struct {
 }
 
 type IService interface {
-	CreateBook(ctx *gin.Context, card *model.Book) error
-	GetBook(ctx *gin.Context, id int64) (*entity.BookVO, error)
-	UpdateBook(ctx *gin.Context, book *model.Book) error
-	DeleteBook(ctx *gin.Context, bookId, userId int64) error
-	GetBookList(ctx *gin.Context, search string, userId int64) ([]*entity.BookVO, error)
-	AddCardToBook(ctx *gin.Context, bookCard *model.BookCard) error
-	DeleteCardFromBook(ctx *gin.Context, bookId, cardId, userId int64) error
-	GetBookCardList(ctx *gin.Context, bookId int64) ([]*model.Card, error)
+	CreateBook(ctx context.Context, card *model.Book) error
+	GetBook(ctx context.Context, id int64) (*entity.BookVO, error)
+	UpdateBook(ctx context.Context, book *model.Book) error
+	DeleteBook(ctx context.Context, bookId, userId int64) error
+	GetBookList(ctx context.Context, search string, userId int64) ([]*entity.BookVO, error)
+	AddCardToBook(ctx context.Context, bookCard *model.BookCard) error
+	DeleteCardFromBook(ctx context.Context, bookId, cardId, userId int64) error
+	GetBookCardList(ctx context.Context, bookId int64) ([]*model.Card, error)
 }
 
 type cardRepository interface {
-	GetListByIds(ctx *gin.Context, ids []int64) ([]*model.Card, error)
+	GetListByIds(ctx context.Context, ids []int64) ([]*model.Card, error)
 }
 
 func NewService(bookRepo book.IRepository, cardRepo cardRepository) *Service {
@@ -36,11 +36,11 @@ func NewService(bookRepo book.IRepository, cardRepo cardRepository) *Service {
 	}
 }
 
-func (s *Service) CreateBook(ctx *gin.Context, book *model.Book) error {
+func (s *Service) CreateBook(ctx context.Context, book *model.Book) error {
 	return s.bookRepo.Create(ctx, book)
 }
 
-func (s *Service) GetBook(ctx *gin.Context, id int64) (*entity.BookVO, error) {
+func (s *Service) GetBook(ctx context.Context, id int64) (*entity.BookVO, error) {
 	book, err := s.bookRepo.GetById(ctx, id)
 	if err != nil {
 		return nil, err
@@ -69,15 +69,15 @@ func (s *Service) GetBook(ctx *gin.Context, id int64) (*entity.BookVO, error) {
 	return bookVO, nil
 }
 
-func (s *Service) UpdateBook(ctx *gin.Context, book *model.Book) error {
+func (s *Service) UpdateBook(ctx context.Context, book *model.Book) error {
 	return s.bookRepo.Update(ctx, book)
 }
 
-func (s *Service) DeleteBook(ctx *gin.Context, bookId, userId int64) error {
+func (s *Service) DeleteBook(ctx context.Context, bookId, userId int64) error {
 	return s.bookRepo.Delete(ctx, bookId, userId)
 }
 
-func (s *Service) GetBookList(ctx *gin.Context, search string, userId int64) ([]*entity.BookVO, error) {
+func (s *Service) GetBookList(ctx context.Context, search string, userId int64) ([]*entity.BookVO, error) {
 	bookList, err := s.bookRepo.GetBookList(ctx, search, userId)
 	if err != nil {
 		return nil, err
@@ -89,15 +89,15 @@ func (s *Service) GetBookList(ctx *gin.Context, search string, userId int64) ([]
 	return bookVOList, nil
 }
 
-func (s *Service) AddCardToBook(ctx *gin.Context, bookCard *model.BookCard) error {
+func (s *Service) AddCardToBook(ctx context.Context, bookCard *model.BookCard) error {
 	return s.bookRepo.CreateBookCard(ctx, bookCard)
 }
 
-func (s *Service) DeleteCardFromBook(ctx *gin.Context, bookId, cardId, userId int64) error {
+func (s *Service) DeleteCardFromBook(ctx context.Context, bookId, cardId, userId int64) error {
 	return s.bookRepo.DeleteBookCard(ctx, bookId, cardId, userId)
 }
 
-func (s *Service) GetBookCardList(ctx *gin.Context, bookId int64) ([]*model.Card, error) {
+func (s *Service) GetBookCardList(ctx context.Context, bookId int64) ([]*model.Card, error) {
 	bookCards, err := s.bookRepo.GetBookCardList(ctx, bookId)
 	if err != nil {
 		return nil, err

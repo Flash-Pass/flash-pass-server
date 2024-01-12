@@ -1,11 +1,11 @@
 package taskcardrecord
 
 import (
+	"context"
 	"github.com/Flash-Pass/flash-pass-server/db/model"
 	"github.com/Flash-Pass/flash-pass-server/db/query"
 	"github.com/Flash-Pass/flash-pass-server/internal/ctxlog"
 	"github.com/Flash-Pass/flash-pass-server/internal/utils/timeutils"
-	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -18,11 +18,11 @@ type Repository struct {
 }
 
 type IRepository interface {
-	GetById(ctx *gin.Context, taskCardRecordId int64) (*model.TaskCardRecord, error)
-	Feed(ctx *gin.Context, userId int64) ([]*model.TaskCardRecord, error)
-	GetRecordByTimestamp(ctx *gin.Context, taskId, timestamp, groupNum, groupSize int64) ([]*model.TaskCardRecord, error)
-	CountRecordByTimestamp(ctx *gin.Context, taskId, timestamp int64) (int64, error)
-	Generate(ctx *gin.Context, taskId, userId, timestamp int64) error
+	GetById(ctx context.Context, taskCardRecordId int64) (*model.TaskCardRecord, error)
+	Feed(ctx context.Context, userId int64) ([]*model.TaskCardRecord, error)
+	GetRecordByTimestamp(ctx context.Context, taskId, timestamp, groupNum, groupSize int64) ([]*model.TaskCardRecord, error)
+	CountRecordByTimestamp(ctx context.Context, taskId, timestamp int64) (int64, error)
+	Generate(ctx context.Context, taskId, userId, timestamp int64) error
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -31,8 +31,8 @@ func NewRepository(db *gorm.DB) *Repository {
 	}
 }
 
-func (r *Repository) GetById(ctx *gin.Context, taskCardRecordId int64) (*model.TaskCardRecord, error) {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) GetById(ctx context.Context, taskCardRecordId int64) (*model.TaskCardRecord, error) {
+	logger := ctxlog.Extract(ctx)
 
 	taskCardRecord, err := r.taskCardRecord.WithContext(ctx).Where(query.TaskCardRecord.Id.Eq(taskCardRecordId)).First()
 	if err != nil {
@@ -43,13 +43,13 @@ func (r *Repository) GetById(ctx *gin.Context, taskCardRecordId int64) (*model.T
 	return taskCardRecord, nil
 }
 
-func (r *Repository) Feed(ctx *gin.Context, userId int64) ([]*model.TaskCardRecord, error) {
+func (r *Repository) Feed(ctx context.Context, userId int64) ([]*model.TaskCardRecord, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (r *Repository) GetRecordByTimestamp(ctx *gin.Context, taskId, timestamp, groupNum, groupSize int64) ([]*model.TaskCardRecord, error) {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) GetRecordByTimestamp(ctx context.Context, taskId, timestamp, groupNum, groupSize int64) ([]*model.TaskCardRecord, error) {
+	logger := ctxlog.Extract(ctx)
 
 	dayStart := timeutils.GetStartTimestampOfDay(timestamp)
 	dayEnd := timeutils.GetEndTimestampOfDay(timestamp)
@@ -83,8 +83,8 @@ func (r *Repository) GetRecordByTimestamp(ctx *gin.Context, taskId, timestamp, g
 	}
 }
 
-func (r *Repository) CountRecordByTimestamp(ctx *gin.Context, taskId, timestamp int64) (int64, error) {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) CountRecordByTimestamp(ctx context.Context, taskId, timestamp int64) (int64, error) {
+	logger := ctxlog.Extract(ctx)
 
 	dayStart := timeutils.GetStartTimestampOfDay(timestamp)
 	dayEnd := timeutils.GetEndTimestampOfDay(timestamp)
@@ -103,8 +103,8 @@ func (r *Repository) CountRecordByTimestamp(ctx *gin.Context, taskId, timestamp 
 	return count, nil
 }
 
-func (r *Repository) Generate(ctx *gin.Context, taskId, userId, timestamp int64) error {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) Generate(ctx context.Context, taskId, userId, timestamp int64) error {
+	logger := ctxlog.Extract(ctx)
 
 	task, err := r.task.WithContext(ctx).Where(query.Task.Id.Eq(taskId)).First()
 	if err != nil {

@@ -23,7 +23,7 @@ type BaseConfig struct {
 	Name    string      `env:"SERVER_NAME" envDefault:"flash_pass_server"`
 	Address string      `env:"SERVER_ADDRESS" envDefault:"localhost"`
 	Port    int         `env:"SERVER_PORT" envDefault:"8080"`
-	InDev   bool        `env:"IN_DEV" envDefault:"false"`
+	InDev   bool        `env:"IN_DEV" envDefault:"true"`
 	Nacos   NacosConfig `envPrefix:"NACOS_"`
 }
 

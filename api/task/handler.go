@@ -1,6 +1,7 @@
 package task
 
 import (
+	"context"
 	"github.com/Flash-Pass/flash-pass-server/db/model"
 	"github.com/gin-gonic/gin"
 )
@@ -10,23 +11,23 @@ type Handler struct {
 }
 
 type IHandler interface {
-	Create(ctx *gin.Context)
-	Update(ctx *gin.Context)
-	Delete(ctx *gin.Context)
-	List(ctx *gin.Context)
-	Feed(ctx *gin.Context)
-	AddLearnStatus(ctx *gin.Context)
+	Create(c *gin.Context)
+	Update(c *gin.Context)
+	Delete(c *gin.Context)
+	List(c *gin.Context)
+	Feed(c *gin.Context)
+	AddLearnStatus(c *gin.Context)
 }
 
 type IService interface {
-	CreateTask(ctx *gin.Context, planId, bookId, userId int64, name string) (*model.Task, error)
-	Active(ctx *gin.Context, taskId int64, isActive bool) (*model.Task, error)
-	UpdateTaskName(ctx *gin.Context, taskId int64, name string) (*model.Task, error)
-	DeleteTask(ctx *gin.Context, taskId int64) error
-	GetTaskList(ctx *gin.Context, userId int64) ([]*model.Task, error)
-	GetTaskListByIsActive(ctx *gin.Context, userId int64, isActive bool) ([]*model.Task, error)
-	Feed(ctx *gin.Context, userId int64, taskId int64) ([]*model.TaskCardRecord, error)
-	AddLearnStatus(ctx *gin.Context, taskCardRecordId int64, status string) error
+	CreateTask(ctx context.Context, planId, bookId, userId int64, name string) (*model.Task, error)
+	Active(ctx context.Context, taskId int64, isActive bool) (*model.Task, error)
+	DeleteTask(ctx context.Context, taskId int64) error
+	GetTaskList(ctx context.Context, userId int64) ([]*model.Task, error)
+	GetTaskListByIsActive(ctx context.Context, userId int64, isActive bool) ([]*model.Task, error)
+	Feed(ctx context.Context, userId int64, taskId int64) ([]*model.TaskCardRecord, error)
+	AddLearnStatus(ctx context.Context, taskCardRecordId int64, status string) error
+	Update(ctx context.Context, taskId int64, taskName string, isActive bool) (*model.Task, error)
 }
 
 func NewHandler(service IService) *Handler {

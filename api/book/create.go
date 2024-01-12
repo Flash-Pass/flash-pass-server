@@ -1,6 +1,7 @@
 package book
 
 import (
+	"github.com/Flash-Pass/flash-pass-server/internal/ctxlog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -22,16 +23,18 @@ type AddCardToBookRequest struct {
 	CardId int64 `json:"card_id,string" binding:"required"`
 }
 
-func (h *Handler) CreateBookController(ctx *gin.Context) {
-	userId, ok := ctx.Get("userId")
+func (h *Handler) CreateBookController(c *gin.Context) {
+	ctx, _ := ctxlog.Export(c)
+
+	userId, ok := c.Get("userId")
 	if !ok {
-		res.RespondWithError(ctx, http.StatusUnauthorized, fpstatus.ParseTokenError, nil)
+		res.RespondWithError(c, http.StatusUnauthorized, fpstatus.ParseTokenError, nil)
 		return
 	}
 
 	params := &CreateBookRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		paramValidator.RespondWithParamError(ctx, err)
+	if err := c.ShouldBind(params); err != nil {
+		paramValidator.RespondWithParamError(c, err)
 		return
 	}
 
@@ -40,23 +43,25 @@ func (h *Handler) CreateBookController(ctx *gin.Context) {
 		h.snowflakeHandle.GetId().Int64(), params.Title, params.Description, userId.(int64),
 	)
 	if err := h.service.CreateBook(ctx, book); err != nil {
-		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
+		res.RespondWithError(c, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return
 	}
 
-	res.RespondSuccess(ctx, entity.ConvertToBookVO(book))
+	res.RespondSuccess(c, entity.ConvertToBookVO(book))
 }
 
-func (h *Handler) AddCardToBookController(ctx *gin.Context) {
-	userId, ok := ctx.Get("userId")
+func (h *Handler) AddCardToBookController(c *gin.Context) {
+	ctx, _ := ctxlog.Export(c)
+
+	userId, ok := c.Get("userId")
 	if !ok {
-		res.RespondWithError(ctx, http.StatusUnauthorized, fpstatus.ParseTokenError, nil)
+		res.RespondWithError(c, http.StatusUnauthorized, fpstatus.ParseTokenError, nil)
 		return
 	}
 
 	params := &AddCardToBookRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		paramValidator.RespondWithParamError(ctx, err)
+	if err := c.ShouldBind(params); err != nil {
+		paramValidator.RespondWithParamError(c, err)
 		return
 	}
 
@@ -64,9 +69,9 @@ func (h *Handler) AddCardToBookController(ctx *gin.Context) {
 		h.snowflakeHandle.GetId().Int64(), params.BookId, params.CardId, userId.(int64),
 	))
 	if err != nil {
-		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
+		res.RespondWithError(c, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return
 	}
 
-	res.RespondSuccess(ctx, nil)
+	res.RespondSuccess(c, nil)
 }

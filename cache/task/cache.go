@@ -1,12 +1,13 @@
 package task
 
 import (
+	"context"
 	"errors"
 	"fmt"
+
 	"github.com/Flash-Pass/flash-pass-server/db/model"
 	"github.com/Flash-Pass/flash-pass-server/internal/cache"
 	"github.com/Flash-Pass/flash-pass-server/internal/ctxlog"
-	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
@@ -17,12 +18,12 @@ type InfoCache struct {
 }
 
 type IInfoCache interface {
-	SetTaskInfo(ctx *gin.Context, taskId int64, task *model.Task) error
-	GetTaskInfo(ctx *gin.Context, taskId int64) (*model.Task, error)
-	SetLearnedGroup(ctx *gin.Context, userId, taskId, groupNum int64) error
-	GetLearnedGroup(ctx *gin.Context, userId, taskId int64) (int64, error)
-	SetReviewedGroup(ctx *gin.Context, userId, taskId, groupNum int64) error
-	GetReviewedGroup(ctx *gin.Context, userId, taskId int64) (int64, error)
+	SetTaskInfo(ctx context.Context, taskId int64, task *model.Task) error
+	GetTaskInfo(ctx context.Context, taskId int64) (*model.Task, error)
+	SetLearnedGroup(ctx context.Context, userId, taskId, groupNum int64) error
+	GetLearnedGroup(ctx context.Context, userId, taskId int64) (int64, error)
+	SetReviewedGroup(ctx context.Context, userId, taskId, groupNum int64) error
+	GetReviewedGroup(ctx context.Context, userId, taskId int64) (int64, error)
 }
 
 func NewInfoCache() *InfoCache {
@@ -36,13 +37,13 @@ func NewInfoCache() *InfoCache {
 	}
 }
 
-func (c *InfoCache) SetTaskInfo(ctx *gin.Context, taskId int64, task *model.Task) error {
+func (c *InfoCache) SetTaskInfo(ctx context.Context, taskId int64, task *model.Task) error {
 	c.taskInfo.Set(fmt.Sprint(taskId), task)
 	return nil
 }
 
-func (c *InfoCache) GetTaskInfo(ctx *gin.Context, taskId int64) (*model.Task, error) {
-	logger := ctxlog.GetLogger(ctx)
+func (c *InfoCache) GetTaskInfo(ctx context.Context, taskId int64) (*model.Task, error) {
+	logger := ctxlog.Extract(ctx)
 
 	task, ok := c.taskInfo.Get(fmt.Sprint(taskId))
 	if !ok {
@@ -53,13 +54,13 @@ func (c *InfoCache) GetTaskInfo(ctx *gin.Context, taskId int64) (*model.Task, er
 	return task, nil
 }
 
-func (c *InfoCache) SetLearnedGroup(ctx *gin.Context, userId, taskId, groupNum int64) error {
+func (c *InfoCache) SetLearnedGroup(ctx context.Context, userId, taskId, groupNum int64) error {
 	c.learnedGroup.Set(fmt.Sprintf("%d_%d", userId, taskId), groupNum)
 	return nil
 }
 
-func (c *InfoCache) GetLearnedGroup(ctx *gin.Context, userId, taskId int64) (int64, error) {
-	logger := ctxlog.GetLogger(ctx)
+func (c *InfoCache) GetLearnedGroup(ctx context.Context, userId, taskId int64) (int64, error) {
+	logger := ctxlog.Extract(ctx)
 
 	groupNum, ok := c.learnedGroup.Get(fmt.Sprintf("%d_%d", userId, taskId))
 	if !ok {
@@ -70,13 +71,13 @@ func (c *InfoCache) GetLearnedGroup(ctx *gin.Context, userId, taskId int64) (int
 	return groupNum, nil
 }
 
-func (c *InfoCache) SetReviewedGroup(ctx *gin.Context, userId, taskId, groupNum int64) error {
+func (c *InfoCache) SetReviewedGroup(ctx context.Context, userId, taskId, groupNum int64) error {
 	c.reviewedGroup.Set(fmt.Sprintf("%d_%d", userId, taskId), groupNum)
 	return nil
 }
 
-func (c *InfoCache) GetReviewedGroup(ctx *gin.Context, userId, taskId int64) (int64, error) {
-	logger := ctxlog.GetLogger(ctx)
+func (c *InfoCache) GetReviewedGroup(ctx context.Context, userId, taskId int64) (int64, error) {
+	logger := ctxlog.Extract(ctx)
 
 	groupNum, ok := c.reviewedGroup.Get(fmt.Sprintf("%d_%d", userId, taskId))
 	if !ok {

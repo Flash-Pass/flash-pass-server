@@ -1,15 +1,12 @@
 package api
 
 import (
-	"github.com/Flash-Pass/flash-pass-server/api/plan"
-	"github.com/Flash-Pass/flash-pass-server/api/task"
-	"github.com/Flash-Pass/flash-pass-server/internal/encryptor"
-	"github.com/Flash-Pass/flash-pass-server/internal/snowflake"
-	"github.com/Flash-Pass/flash-pass-server/internal/wechatClient"
 	"github.com/gin-gonic/gin"
 
 	"github.com/Flash-Pass/flash-pass-server/api/book"
 	"github.com/Flash-Pass/flash-pass-server/api/card"
+	"github.com/Flash-Pass/flash-pass-server/api/plan"
+	"github.com/Flash-Pass/flash-pass-server/api/task"
 	userhandler "github.com/Flash-Pass/flash-pass-server/api/user"
 	taskcache "github.com/Flash-Pass/flash-pass-server/cache/task"
 	"github.com/Flash-Pass/flash-pass-server/config"
@@ -23,7 +20,10 @@ import (
 	taskCardRecordRepo "github.com/Flash-Pass/flash-pass-server/db/repositories/taskcardrecord"
 	taskLogRepo "github.com/Flash-Pass/flash-pass-server/db/repositories/tasklog"
 	userrepo "github.com/Flash-Pass/flash-pass-server/db/repositories/user"
+	"github.com/Flash-Pass/flash-pass-server/internal/encryptor"
 	"github.com/Flash-Pass/flash-pass-server/internal/generator"
+	"github.com/Flash-Pass/flash-pass-server/internal/snowflake"
+	"github.com/Flash-Pass/flash-pass-server/internal/wechatClient"
 	bookservice "github.com/Flash-Pass/flash-pass-server/service/book"
 	cardservice "github.com/Flash-Pass/flash-pass-server/service/card"
 	planservice "github.com/Flash-Pass/flash-pass-server/service/plan"

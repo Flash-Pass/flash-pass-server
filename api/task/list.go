@@ -1,33 +1,34 @@
 package task
 
 import (
-	"github.com/Flash-Pass/flash-pass-server/internal/constants"
 	"github.com/Flash-Pass/flash-pass-server/internal/ctxlog"
+	"net/http"
+
+	"github.com/Flash-Pass/flash-pass-server/internal/constants"
 	"github.com/Flash-Pass/flash-pass-server/internal/fpstatus"
 	"github.com/Flash-Pass/flash-pass-server/internal/res"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"net/http"
 )
 
 type ListRequest struct {
 	IsActive string `json:"is_active"`
 }
 
-func (h *Handler) List(ctx *gin.Context) {
-	logger := ctxlog.GetLogger(ctx)
+func (h *Handler) List(c *gin.Context) {
+	ctx, logger := ctxlog.Export(c)
 
-	userId, ok := ctx.Get(constants.CtxUserIdKey)
+	userId, ok := c.Get(constants.CtxUserIdKey)
 	if !ok {
 		logger.Error("parse token error")
-		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage("user id not found"), nil)
+		res.RespondWithError(c, http.StatusInternalServerError, fpstatus.SystemError.WithMessage("user id not found"), nil)
 		return
 	}
 
 	var req ListRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil {
 		logger.Error("parse params error", zap.Error(err))
-		res.RespondWithError(ctx, http.StatusBadRequest, fpstatus.SystemError.WithMessage(err.Error()), nil)
+		res.RespondWithError(c, http.StatusBadRequest, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return
 	}
 
@@ -35,10 +36,10 @@ func (h *Handler) List(ctx *gin.Context) {
 		list, err := h.service.GetTaskList(ctx, userId.(int64))
 		if err != nil {
 			logger.Error("get task list failed", zap.Error(err))
-			res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
+			res.RespondWithError(c, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
 			return
 		}
-		res.RespondSuccess(ctx, list)
+		res.RespondSuccess(c, list)
 		return
 	} else {
 		active := false
@@ -49,11 +50,11 @@ func (h *Handler) List(ctx *gin.Context) {
 		list, err := h.service.GetTaskListByIsActive(ctx, userId.(int64), active)
 		if err != nil {
 			logger.Error("get task list failed", zap.Error(err))
-			res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
+			res.RespondWithError(c, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
 			return
 		}
 
-		res.RespondSuccess(ctx, list)
+		res.RespondSuccess(c, list)
 		return
 	}
 }

@@ -1,6 +1,7 @@
 package plan
 
 import (
+	"github.com/Flash-Pass/flash-pass-server/internal/ctxlog"
 	"net/http"
 
 	"github.com/Flash-Pass/flash-pass-server/db/model"
@@ -24,16 +25,18 @@ type createRequest struct {
 	ReviewStrategy string `json:"review_strategy" binding:"required"`
 }
 
-func (h *Handler) Create(ctx *gin.Context) {
-	userId, ok := ctx.Get(constants.CtxUserIdKey)
+func (h *Handler) Create(c *gin.Context) {
+	ctx, _ := ctxlog.Export(c)
+
+	userId, ok := c.Get(constants.CtxUserIdKey)
 	if !ok {
-		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage("user id not found"), nil)
+		res.RespondWithError(c, http.StatusInternalServerError, fpstatus.SystemError.WithMessage("user id not found"), nil)
 		return
 	}
 
 	params := &createRequest{}
-	if err := ctx.ShouldBindJSON(params); err != nil {
-		paramValidator.RespondWithParamError(ctx, err)
+	if err := c.ShouldBindJSON(params); err != nil {
+		paramValidator.RespondWithParamError(c, err)
 		return
 	}
 
@@ -51,9 +54,9 @@ func (h *Handler) Create(ctx *gin.Context) {
 		CreatedBy:      userId.(int64),
 	})
 	if err != nil {
-		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
+		res.RespondWithError(c, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return
 	}
 
-	res.RespondSuccess(ctx, plan)
+	res.RespondSuccess(c, plan)
 }

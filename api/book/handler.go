@@ -1,9 +1,10 @@
 package book
 
 import (
+	"github.com/gin-gonic/gin"
+
 	"github.com/Flash-Pass/flash-pass-server/internal/snowflake"
 	"github.com/Flash-Pass/flash-pass-server/service/book"
-	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
@@ -12,14 +13,13 @@ type Handler struct {
 }
 
 type IHandler interface {
-	CreateBookController(ctx *gin.Context)
-	GetBookController(ctx *gin.Context)
-	UpdateBookController(ctx *gin.Context)
-	DeleteBookController(ctx *gin.Context)
-	GetBookListController(ctx *gin.Context)
-	AddCardToBookController(ctx *gin.Context)
-	RemoveCardFromBookController(ctx *gin.Context)
-	GetBookCardListController(ctx *gin.Context)
+	CreateBookController(c *gin.Context)
+	GetBookController(c *gin.Context)
+	UpdateBookController(c *gin.Context)
+	DeleteBookController(c *gin.Context)
+	GetBookListController(c *gin.Context)
+	AddCardToBookController(c *gin.Context)
+	RemoveCardFromBookController(c *gin.Context)
 }
 
 func NewHandler(service book.IService, snowflake *snowflake.Handle) *Handler {

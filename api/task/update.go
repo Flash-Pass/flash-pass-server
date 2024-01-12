@@ -1,11 +1,12 @@
 package task
 
 import (
-	"github.com/Flash-Pass/flash-pass-server/db/model"
+	"github.com/Flash-Pass/flash-pass-server/internal/ctxlog"
+	"net/http"
+
 	"github.com/Flash-Pass/flash-pass-server/internal/fpstatus"
 	"github.com/Flash-Pass/flash-pass-server/internal/res"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type UpdateRequest struct {
@@ -14,34 +15,25 @@ type UpdateRequest struct {
 	IsActive string `json:"is_active"`
 }
 
-func (h *Handler) Update(ctx *gin.Context) {
+func (h *Handler) Update(c *gin.Context) {
+	ctx, _ := ctxlog.Export(c)
+
 	var req UpdateRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		res.RespondWithError(ctx, http.StatusBadRequest, fpstatus.SystemError.WithMessage(err.Error()), nil)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		res.RespondWithError(c, http.StatusBadRequest, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return
 	}
 
-	var task *model.Task
-	var err error
-	if req.Name != "" {
-		task, err = h.service.UpdateTaskName(ctx, req.TaskId, req.Name)
-		if err != nil {
-			res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
-			return
-		}
+	active := false
+	if req.IsActive == "true" || req.IsActive == "True" || req.IsActive == "TRUE" {
+		active = true
 	}
 
-	if req.IsActive != "" {
-		active := false
-		if req.IsActive == "true" || req.IsActive == "True" || req.IsActive == "TRUE" {
-			active = true
-		}
-		task, err = h.service.Active(ctx, req.TaskId, active)
-		if err != nil {
-			res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
-			return
-		}
+	task, err := h.service.Update(ctx, req.TaskId, req.Name, active)
+	if err != nil {
+		res.RespondWithError(c, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
+		return
 	}
 
-	res.RespondSuccess(ctx, task)
+	res.RespondSuccess(c, task)
 }

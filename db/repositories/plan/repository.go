@@ -1,12 +1,12 @@
 package plan
 
 import (
+	"context"
 	"errors"
 
 	"github.com/Flash-Pass/flash-pass-server/db/model"
 	"github.com/Flash-Pass/flash-pass-server/db/query"
 	"github.com/Flash-Pass/flash-pass-server/internal/ctxlog"
-	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -17,13 +17,13 @@ type Repository struct {
 }
 
 type IRepository interface {
-	Create(ctx *gin.Context, plan *model.Plan) (*model.Plan, error)
-	IsPlanBelongToUser(ctx *gin.Context, planId, userId int64) (bool, error)
-	Get(ctx *gin.Context, planId int64) (*model.Plan, error)
-	Update(ctx *gin.Context, plan *model.Plan) (*model.Plan, error)
-	Delete(ctx *gin.Context, planId int64) error
-	GetList(ctx *gin.Context, userId int64) ([]*model.Plan, error)
-	GetPlanByTaskId(ctx *gin.Context, taskId int64) (*model.Plan, error)
+	Create(ctx context.Context, plan *model.Plan) (*model.Plan, error)
+	IsPlanBelongToUser(ctx context.Context, planId, userId int64) (bool, error)
+	Get(ctx context.Context, planId int64) (*model.Plan, error)
+	Update(ctx context.Context, plan *model.Plan) (*model.Plan, error)
+	Delete(ctx context.Context, planId int64) error
+	GetList(ctx context.Context, userId int64) ([]*model.Plan, error)
+	GetPlanByTaskId(ctx context.Context, taskId int64) (*model.Plan, error)
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -33,8 +33,8 @@ func NewRepository(db *gorm.DB) *Repository {
 	}
 }
 
-func (r *Repository) Create(ctx *gin.Context, plan *model.Plan) (*model.Plan, error) {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) Create(ctx context.Context, plan *model.Plan) (*model.Plan, error) {
+	logger := ctxlog.Extract(ctx)
 
 	if err := r.plan.Create(plan); err != nil {
 		logger.Error("create plan failed", zap.Error(err), zap.Any("plan", plan))
@@ -44,8 +44,8 @@ func (r *Repository) Create(ctx *gin.Context, plan *model.Plan) (*model.Plan, er
 	return plan, nil
 }
 
-func (r *Repository) IsPlanBelongToUser(ctx *gin.Context, planId, userId int64) (bool, error) {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) IsPlanBelongToUser(ctx context.Context, planId, userId int64) (bool, error) {
+	logger := ctxlog.Extract(ctx)
 
 	plan, err := r.Get(ctx, planId)
 	if err != nil {
@@ -60,8 +60,8 @@ func (r *Repository) IsPlanBelongToUser(ctx *gin.Context, planId, userId int64) 
 	return true, nil
 }
 
-func (r *Repository) Get(ctx *gin.Context, planId int64) (*model.Plan, error) {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) Get(ctx context.Context, planId int64) (*model.Plan, error) {
+	logger := ctxlog.Extract(ctx)
 
 	plan, err := r.plan.WithContext(ctx).Where(query.Plan.Id.Eq(planId)).First()
 	if err != nil {
@@ -72,8 +72,8 @@ func (r *Repository) Get(ctx *gin.Context, planId int64) (*model.Plan, error) {
 	return plan, err
 }
 
-func (r *Repository) Update(ctx *gin.Context, plan *model.Plan) (*model.Plan, error) {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) Update(ctx context.Context, plan *model.Plan) (*model.Plan, error) {
+	logger := ctxlog.Extract(ctx)
 
 	if _, err := r.plan.WithContext(ctx).Where(query.Plan.Id.Eq(plan.Id)).Updates(plan); err != nil {
 		logger.Error("update defeat", zap.Any("plan", plan), zap.Error(err))
@@ -83,8 +83,8 @@ func (r *Repository) Update(ctx *gin.Context, plan *model.Plan) (*model.Plan, er
 	return plan, nil
 }
 
-func (r *Repository) Delete(ctx *gin.Context, planId int64) error {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) Delete(ctx context.Context, planId int64) error {
+	logger := ctxlog.Extract(ctx)
 
 	affected, err := r.plan.WithContext(ctx).Where(query.Plan.Id.Eq(planId),
 		query.Plan.IsDeleted.Is(false)).Update(query.Plan.IsDeleted, true)
@@ -99,8 +99,8 @@ func (r *Repository) Delete(ctx *gin.Context, planId int64) error {
 	return nil
 }
 
-func (r *Repository) GetList(ctx *gin.Context, userId int64) ([]*model.Plan, error) {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) GetList(ctx context.Context, userId int64) ([]*model.Plan, error) {
+	logger := ctxlog.Extract(ctx)
 
 	plans, err := r.plan.WithContext(ctx).Where(query.Plan.CreatedBy.Eq(userId)).Find()
 	if err != nil {
@@ -111,8 +111,8 @@ func (r *Repository) GetList(ctx *gin.Context, userId int64) ([]*model.Plan, err
 	return plans, nil
 }
 
-func (r *Repository) GetPlanByTaskId(ctx *gin.Context, taskId int64) (*model.Plan, error) {
-	logger := ctxlog.GetLogger(ctx)
+func (r *Repository) GetPlanByTaskId(ctx context.Context, taskId int64) (*model.Plan, error) {
+	logger := ctxlog.Extract(ctx)
 
 	task, err := r.task.WithContext(ctx).Where(query.Task.Id.Eq(taskId)).First()
 	if err != nil {

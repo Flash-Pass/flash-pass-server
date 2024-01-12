@@ -29,7 +29,7 @@ func GinRecovery(stack bool) gin.HandlerFunc {
 				}
 
 				httpRequest, _ := httputil.DumpRequest(c.Request, false)
-				logger := ctxlog.GetLogger(c)
+				_, logger := ctxlog.Export(c)
 				if brokenPipe {
 					logger.Error(c.Request.URL.Path,
 						zap.Any("error", err),

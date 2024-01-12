@@ -36,6 +36,7 @@ func Authorize() gin.HandlerFunc {
 		claim, err := auth.ParseToken(c, token)
 		if err != nil {
 			res.RespondWithError(c, http.StatusUnauthorized, fpstatus.ParseTokenError, nil)
+			c.Next()
 		}
 
 		c.Set(constants.CtxUserIdKey, claim.Id)
