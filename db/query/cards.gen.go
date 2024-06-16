@@ -28,13 +28,13 @@ func newCard(db *gorm.DB, opts ...gen.DOOption) card {
 
 	tableName := _card.cardDo.TableName()
 	_card.ALL = field.NewAsterisk(tableName)
-	_card.Id = field.NewString(tableName, "id")
+	_card.Id = field.NewUint64(tableName, "id")
 	_card.CreatedAt = field.NewTime(tableName, "created_at")
 	_card.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_card.IsDeleted = field.NewBool(tableName, "is_deleted")
 	_card.Question = field.NewString(tableName, "question")
 	_card.Answer = field.NewString(tableName, "answer")
-	_card.CreatedBy = field.NewString(tableName, "created_by")
+	_card.CreatedBy = field.NewUint64(tableName, "created_by")
 
 	_card.fillFieldMap()
 
@@ -45,13 +45,13 @@ type card struct {
 	cardDo
 
 	ALL       field.Asterisk
-	Id        field.String
+	Id        field.Uint64
 	CreatedAt field.Time
 	UpdatedAt field.Time
 	IsDeleted field.Bool
 	Question  field.String
 	Answer    field.String
-	CreatedBy field.String
+	CreatedBy field.Uint64
 
 	fieldMap map[string]field.Expr
 }
@@ -68,13 +68,13 @@ func (c card) As(alias string) *card {
 
 func (c *card) updateTableName(table string) *card {
 	c.ALL = field.NewAsterisk(table)
-	c.Id = field.NewString(table, "id")
+	c.Id = field.NewUint64(table, "id")
 	c.CreatedAt = field.NewTime(table, "created_at")
 	c.UpdatedAt = field.NewTime(table, "updated_at")
 	c.IsDeleted = field.NewBool(table, "is_deleted")
 	c.Question = field.NewString(table, "question")
 	c.Answer = field.NewString(table, "answer")
-	c.CreatedBy = field.NewString(table, "created_by")
+	c.CreatedBy = field.NewUint64(table, "created_by")
 
 	c.fillFieldMap()
 
@@ -173,16 +173,18 @@ type ICardDo interface {
 	UnderlyingDB() *gorm.DB
 	schema.Tabler
 
-	GetBySearchAndUserId(search string, userId string) (result []*model.Card, err error)
+	GetBySearchAndUserId(search string, userId uint64) (result []*model.Card, err error)
 }
 
-// SELECT * FROM @@table WHERE question LIKE '%@search%' OR answer LIKE '%@search%' OR created_by = @userId
-func (c cardDo) GetBySearchAndUserId(search string, userId string) (result []*model.Card, err error) {
+// SELECT * FROM @@table WHERE question LIKE concat("%", @search,"%") OR answer LIKE concat("%", @search,"%") OR created_by = @userId
+func (c cardDo) GetBySearchAndUserId(search string, userId uint64) (result []*model.Card, err error) {
 	var params []interface{}
 
 	var generateSQL strings.Builder
+	params = append(params, search)
+	params = append(params, search)
 	params = append(params, userId)
-	generateSQL.WriteString("SELECT * FROM cards WHERE question LIKE '%@search%' OR answer LIKE '%@search%' OR created_by = ? ")
+	generateSQL.WriteString("SELECT * FROM cards WHERE question LIKE concat(\"%\", ?,\"%\") OR answer LIKE concat(\"%\", ?,\"%\") OR created_by = ? ")
 
 	var executeSQL *gorm.DB
 	executeSQL = c.UnderlyingDB().Raw(generateSQL.String(), params...).Find(&result) // ignore_security_alert

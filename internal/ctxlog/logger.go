@@ -24,6 +24,11 @@ const (
 	globalFieldKey = "global_field_key"
 )
 
+func SetLogger(logger *zap.Logger) *zap.Logger {
+	DefaultLogger = logger
+	return logger
+}
+
 // AddFields will add or override fields to context when zap.Namespace is provided.
 // It will nest any following fields until another zap.Namespace is provided.
 // The difference with pure zap.Namespaces are that when you define a namespace, any following attached

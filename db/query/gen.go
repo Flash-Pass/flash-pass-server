@@ -18,17 +18,23 @@ import (
 var (
 	Q    = new(Query)
 	Card *card
+	Plan *plan
+	User *user
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
 	Card = &Q.Card
+	Plan = &Q.Plan
+	User = &Q.User
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
 		db:   db,
 		Card: newCard(db, opts...),
+		Plan: newPlan(db, opts...),
+		User: newUser(db, opts...),
 	}
 }
 
@@ -36,6 +42,8 @@ type Query struct {
 	db *gorm.DB
 
 	Card card
+	Plan plan
+	User user
 }
 
 func (q *Query) Available() bool { return q.db != nil }
@@ -44,6 +52,8 @@ func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
 		db:   db,
 		Card: q.Card.clone(db),
+		Plan: q.Plan.clone(db),
+		User: q.User.clone(db),
 	}
 }
 
@@ -59,16 +69,22 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
 		db:   db,
 		Card: q.Card.replaceDB(db),
+		Plan: q.Plan.replaceDB(db),
+		User: q.User.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
 	Card ICardDo
+	Plan IPlanDo
+	User IUserDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
 		Card: q.Card.WithContext(ctx),
+		Plan: q.Plan.WithContext(ctx),
+		User: q.User.WithContext(ctx),
 	}
 }
 

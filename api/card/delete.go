@@ -1,14 +1,16 @@
 package card
 
 import (
+	"net/http"
+
 	"github.com/Flash-Pass/flash-pass-server/internal/fpstatus"
+	"github.com/Flash-Pass/flash-pass-server/internal/paramValidator"
 	"github.com/Flash-Pass/flash-pass-server/internal/res"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type DeleteCardRequest struct {
-	id string `json:"id"`
+	Id uint64 `json:"id" binding:"required"`
 }
 
 func (h *Handler) DeleteCardController(ctx *gin.Context) {
@@ -18,12 +20,12 @@ func (h *Handler) DeleteCardController(ctx *gin.Context) {
 	}
 
 	params := &DeleteCardRequest{}
-	if err := ctx.ShouldBind(&params); err != nil {
-		res.RespondWithError(ctx, http.StatusBadRequest, fpstatus.ParseParametersError, nil)
+	if err := ctx.ShouldBind(params); err != nil {
+		paramValidator.RespondWithParamError(ctx, err)
 		return
 	}
 
-	if err := h.service.DeleteCard(ctx, params.id, userId.(string)); err != nil {
+	if err := h.service.DeleteCard(ctx, params.Id, userId.(uint64)); err != nil {
 		res.RespondWithError(ctx, http.StatusInternalServerError, fpstatus.SystemError.WithMessage(err.Error()), nil)
 		return
 	}
